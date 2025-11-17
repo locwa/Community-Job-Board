@@ -1,1 +1,31 @@
-<p>create-job works!</p>
+<h1 class="fw-bold">Find Jobs</h1>
+<div class="container-fluid">
+  <div class="row">
+    <label for="title">Job Title</label>
+    <input type="text" name="job-title" id="" [(ngModel)]="title">
+  </div>
+  <div class="row">
+    <label for="title">Company</label>
+    <input type="text" name="job-company" id="" [(ngModel)]="company">
+  </div>
+  <div class="row">
+    <label for="title">Location</label>
+    <input type="text" name="job-location" id="" [(ngModel)]="location">
+  </div>
+  <div class="row">
+    <label for="title">Type</label>
+    <input type="text" name="job-type" id="" [(ngModel)]="type">
+  </div>
+  <div class="row">
+    <label for="title">Salary</label>
+    <input type="text" name="job-salary" id="" [(ngModel)]="salary">
+  </div>
+  <div class="row">
+    <label for="title">Description</label>
+    <input type="text" name="job-description" id="" [(ngModel)]="description">
+  </div>
+  <div class="row">
+    <button (click)="addJob()">Create Job</button>
+  </div>
+</div>
+
