@@ -1,1 +1,23 @@
-<p>job-list works!</p>
+<h1 class="fw-bold">Find Jobs</h1>
+<div class="container-fluid">
+  <div class="row w-100 d-flex justify-content-center">
+    <div class="col-6">
+      <input type="text" class="w-100" name="job-title" id="job-title" placeholder="Search for Title" [(ngModel)]="jobTitleSearch">
+    </div>
+    <div class="col-4">
+      <input type="text" class="w-100" name="job-title" id="job-title" placeholder="Location (e.g, Manila)" [(ngModel)]="jobLocationSearch">
+    </div>
+    <div class="col-1">
+      <button class="w-100" (click)="searchJob()">Search</button>
+    </div>
+  </div>
+</div>
+<table class="mx-5 my-4">
+  <tr *ngFor="let job of jobs">
+    <td>
+      <h2 class="fs-4">{{job.title}}</h2>
+      <p>{{job.location}} | {{job.type}}</p>
+      <p>{{job.salary}}</p>
+    </td>
+  </tr>
+</table>
