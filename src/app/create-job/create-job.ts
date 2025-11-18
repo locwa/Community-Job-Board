@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import { JobsService } from '../services/jobs-service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-create-job',
@@ -20,7 +21,7 @@ export class CreateJob {
 
   jobDetails:any = []
 
-  constructor(private jobService : JobsService) {
+  constructor(private jobService : JobsService, private router : Router) {
   }
 
   addJob(){
@@ -32,7 +33,7 @@ export class CreateJob {
       description: this.description,
       salary: this.salary,
     }
-
     this.jobService.create(this.jobDetails)
+    this.router.navigate(['/'])
   }
 }
