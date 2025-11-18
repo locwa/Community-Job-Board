@@ -16,6 +16,8 @@ export class JobList {
   jobLocationSearch = ""
   jobTypeSearch= ""
 
+  jobDetails:any = []
+
   filters:any = {
     title: "",
     company: "",
@@ -39,5 +41,10 @@ export class JobList {
     }
     this.jobs = this.jobService.list(this.filters)
     console.log(this.jobs)
+  }
+
+  viewJob(id: number){
+    this.jobDetails = this.jobs.find((job:any) => job.id == id)
+    console.log(this.jobDetails)
   }
 }
