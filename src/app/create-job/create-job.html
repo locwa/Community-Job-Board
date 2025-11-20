@@ -21,9 +21,9 @@
     <input type="text" name="job-salary" id="" [(ngModel)]="salary">
   </div>
   <div class="row">
-    <label for="title">Description</label>
-    <input type="text" name="job-description" id="" [(ngModel)]="description">
-  </div>
+    <label for="description">Description</label>
+    <textarea rows="5" class="form-control" name="job-description" [(ngModel)]="description"></textarea>
+   </div>
   <div class="row">
     <button (click)="addJob()">Create Job</button>
   </div>
