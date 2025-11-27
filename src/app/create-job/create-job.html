@@ -1,31 +1,49 @@
-<h1 class="fw-bold">Find Jobs</h1>
-<div class="container-fluid">
-  <div class="row">
-    <label for="title">Job Title</label>
-    <input type="text" name="job-title" id="" [(ngModel)]="title">
-  </div>
-  <div class="row">
-    <label for="title">Company</label>
-    <input type="text" name="job-company" id="" [(ngModel)]="company">
-  </div>
-  <div class="row">
-    <label for="title">Location</label>
-    <input type="text" name="job-location" id="" [(ngModel)]="location">
-  </div>
-  <div class="row">
-    <label for="title">Type</label>
-    <input type="text" name="job-type" id="" [(ngModel)]="type">
-  </div>
-  <div class="row">
-    <label for="title">Salary</label>
-    <input type="text" name="job-salary" id="" [(ngModel)]="salary">
-  </div>
-  <div class="row">
-    <label for="title">Description</label>
-    <input type="text" name="job-description" id="" [(ngModel)]="description">
-  </div>
-  <div class="row">
-    <button (click)="addJob()">Create Job</button>
-  </div>
-</div>
+<div class="job-container">
+
+  <!-- Form Header -->
+  <h1 class="job-header">Community Job Board</h1>
+  <p class="job-subtitle">Post a new job or update an existing one</p>
+
+  <!-- Job Form -->
+  <form class="job-form" (ngSubmit)="addJob()" aria-label="Job creation form">
+    <div class="form-group">
+      <label for="title">Job Title</label>
+      <input id="title" type="text" placeholder="Enter job title" 
+             [ngModel]="title()" (ngModelChange)="title.set($event)" required>
+    </div>
+
+    <div class="form-group">
+      <label for="company">Company</label>
+      <input id="company" type="text" placeholder="Enter company name" 
+             [ngModel]="company()" (ngModelChange)="company.set($event)" required>
+    </div>
+
+    <div class="form-group">
+      <label for="location">Location</label>
+      <input id="location" type="text" placeholder="Enter job location" 
+             [ngModel]="location()" (ngModelChange)="location.set($event)" required>
+    </div>
+
+    <div class="form-group">
+      <label for="type">Job Type</label>
+      <input id="type" type="text" placeholder="Full-time, Part-time, etc." 
+             [ngModel]="type()" (ngModelChange)="type.set($event)" required>
+    </div>
+
+    <div class="form-group">
+      <label for="salary">Salary</label>
+      <input id="salary" type="text" placeholder="Enter salary or range" 
+             [ngModel]="salary()" (ngModelChange)="salary.set($event)">
+    </div>
+
+    <div class="form-group">
+      <label for="description">Job Description</label>
+      <textarea id="description" rows="4" placeholder="Enter job description" 
+                [ngModel]="description()" (ngModelChange)="description.set($event)" required></textarea>
+    </div>
+
+    <button type="submit" class="btn-submit">
+      {{ editingId() ? 'Update Job' : 'Post Job' }}
+    </button>
+  </form>
 

@@ -1,0 +1,136 @@
+/* Container */
+.job-container {
+  max-width: 800px;
+  margin: 2rem auto;
+  padding: 1rem 2rem;
+  background-color: #f9f9f9;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Header */
+.job-header {
+  font-size: 2rem;
+  margin-bottom: 0.2rem;
+  color: #333;
+}
+
+.job-subtitle {
+  margin-bottom: 1.5rem;
+  color: #666;
+}
+
+/* Form */
+.job-form .form-group {
+  margin-bottom: 1rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.job-form label {
+  margin-bottom: 0.3rem;
+  font-weight: 600;
+}
+
+.job-form input,
+.job-form textarea {
+  padding: 0.6rem;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+  transition: border-color 0.3s;
+}
+
+.job-form input:focus,
+.job-form textarea:focus {
+  outline: none;
+  border-color: #007BFF;
+  box-shadow: 0 0 0 2px rgba(0,123,255,0.2);
+}
+
+/* Submit Button */
+.btn-submit {
+  background-color: #007BFF;
+  color: #fff;
+  padding: 0.7rem 1.2rem;
+  font-size: 1rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.btn-submit:hover {
+  background-color: #0056b3;
+}
+
+/* Job Listings */
+.job-listings {
+  margin-top: 2rem;
+}
+
+.job-listings h2 {
+  margin-bottom: 1rem;
+}
+
+.job-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.8rem 1rem;
+  margin-bottom: 0.8rem;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+
+.job-details {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.job-type {
+  font-style: italic;
+  color: #555;
+}
+
+.job-actions button {
+  margin-left: 0.5rem;
+  padding: 0.4rem 0.8rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.job-actions button:first-child {
+  background-color: #ffc107;
+  color: #000;
+}
+
+.job-actions button:first-child:hover {
+  background-color: #e0a800;
+}
+
+.job-actions button:last-child {
+  background-color: #dc3545;
+  color: #fff;
+}
+
+.job-actions button:last-child:hover {
+  background-color: #c82333;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .job-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .job-actions {
+    margin-top: 0.5rem;
+  }
+}
