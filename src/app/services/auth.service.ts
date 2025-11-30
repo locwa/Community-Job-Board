@@ -16,14 +16,9 @@ export class AuthService {
   authError = signal<string | null>(null);
   loading = signal(false);
   
-  private authStateReady: Promise<void>;
-  private authStateResolver!: () => void;
+  private authReady = signal(false);
 
   constructor() {
-    this.authStateReady = new Promise((resolve) => {
-      this.authStateResolver = resolve;
-    });
-    
     onAuthStateChanged(this.auth, async (user) => {
       this.currentUser.set(user);
       this.isLoggedIn.set(!!user);
@@ -34,12 +29,15 @@ export class AuthService {
         this.userProfile.set(null);
       }
       
-      this.authStateResolver();
+      this.authReady.set(true);
     });
   }
 
   async waitForAuthState(): Promise<void> {
-    await this.authStateReady;
+    // Wait for auth state to be ready
+    while (!this.authReady()) {
+      await new Promise(resolve => setTimeout(resolve, 100));
+    }
   }
 
   private async loadUserProfile(uid: string): Promise<void> {

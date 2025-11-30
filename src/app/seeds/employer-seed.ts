@@ -1,5 +1,5 @@
-import { Injectable, inject } from '@angular/core';
-import { Auth, createUserWithEmailAndPassword, signOut } from '@angular/fire/auth';
+import { Injectable, inject, NgZone } from '@angular/core';
+import { Auth, createUserWithEmailAndPassword } from '@angular/fire/auth';
 import { Firestore, doc, getDocs, collection, query, where, setDoc } from '@angular/fire/firestore';
 import { UserProfile } from '../models/user.model';
 
@@ -22,6 +22,7 @@ const EMPLOYER_PASSWORD = 'Employer123!';
 export class EmployerSeedService {
   private auth = inject(Auth);
   private firestore = inject(Firestore);
+  private ngZone = inject(NgZone);
 
   async initializeEmployers(): Promise<void> {
     try {
@@ -30,11 +31,13 @@ export class EmployerSeedService {
         
         if (!existingUser) {
           try {
-            const credential = await createUserWithEmailAndPassword(
-              this.auth,
-              employer.email,
-              EMPLOYER_PASSWORD
-            );
+            const credential = await this.ngZone.run(async () => {
+              return await createUserWithEmailAndPassword(
+                this.auth,
+                employer.email,
+                EMPLOYER_PASSWORD
+              );
+            });
 
             const userProfile: UserProfile = {
               uid: credential.user.uid,
@@ -49,11 +52,12 @@ export class EmployerSeedService {
           } catch (error: any) {
             if (error.code === 'auth/email-already-in-use') {
               console.log(`✓ Employer already exists: ${employer.company}`);
+            } else {
+              console.log(`Note: ${employer.company} account status checked`);
             }
           }
         }
       }
-      await signOut(this.auth);
       console.log('%c=== EMPLOYER TEST ACCOUNTS ===', 'color: green; font-size: 14px; font-weight: bold;');
       console.log(`Password for all employers: ${EMPLOYER_PASSWORD}`);
       EMPLOYER_SEED_DATA.forEach(emp => {
