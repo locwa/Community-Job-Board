@@ -49,7 +49,11 @@ export class CreateJob implements OnInit {
   ngOnInit() {
     // Get company from user profile or derive from email
     const profile = this.authService.userProfile();
-    if (profile?.company) {
+    
+    // Admins use "jobboard" as company
+    if (profile?.role === 'admin') {
+      this.company = 'jobboard';
+    } else if (profile?.company) {
       this.company = profile.company;
     } else if (profile?.email) {
       // Derive company from email based on seed data
@@ -59,6 +63,10 @@ export class CreateJob implements OnInit {
       }
     }
     console.log("Company loaded:", this.company);
+  }
+
+  isAdmin(): boolean {
+    return this.authService.userProfile()?.role === 'admin';
   }
 
   openConfirmModal() {
@@ -82,7 +90,9 @@ export class CreateJob implements OnInit {
 
     // Ensure company is set from profile
     const profile = this.authService.userProfile();
-    if (profile?.company) {
+    if (profile?.role === 'admin') {
+      this.company = 'jobboard';
+    } else if (profile?.company) {
       this.company = profile.company;
       console.log("Company set to:", this.company);
     } else {

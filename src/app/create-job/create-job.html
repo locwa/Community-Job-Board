@@ -9,6 +9,10 @@
     <input type="text" name="job-title" id="" [(ngModel)]="title">
   </div>
   <div class="row">
+    <label for="company">Company</label>
+    <input type="text" name="company" id="company" [(ngModel)]="company" [disabled]="isAdmin()" class="form-control">
+  </div>
+  <div class="row">
     <label for="title">Location</label>
     <input type="text" name="job-location" id="" [(ngModel)]="location">
   </div>
