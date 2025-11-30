@@ -13,8 +13,13 @@
     <input type="text" name="job-location" id="" [(ngModel)]="location">
   </div>
   <div class="row">
-    <label for="title">Type</label>
-    <input type="text" name="job-type" id="" [(ngModel)]="type">
+    <label for="type">Type</label>
+    <select name="job-type" id="type" [(ngModel)]="type" class="form-control">
+      <option value="">Select Job Type</option>
+      <option value="Part Time">Part Time</option>
+      <option value="Full Time">Full Time</option>
+      <option value="Remote">Remote</option>
+    </select>
   </div>
   <div class="row">
     <label for="title">Salary</label>
