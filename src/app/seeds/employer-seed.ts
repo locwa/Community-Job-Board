@@ -78,32 +78,50 @@ export class EmployerSeedService {
       const snapshot = await getDocs(jobsCollection);
       
       let fixedCount = 0;
+      const usersCollection = collection(this.firestore, 'users');
+      
+      // Create a cache to avoid repeated queries
+      const emailToUidCache: { [email: string]: string } = {};
       
       for (const jobDoc of snapshot.docs) {
         const data = jobDoc.data();
+        const postedBy = data['postedBy'];
         
         // Check if postedBy is an email instead of a UID
-        if (data['postedBy'] && data['postedBy'].includes('@')) {
-          const email = data['postedBy'];
+        if (postedBy && postedBy.includes('@')) {
+          const email = postedBy;
           
-          // Find the employer with this email
-          const usersCollection = collection(this.firestore, 'users');
-          const userQuery = query(usersCollection, where('email', '==', email));
-          const userSnapshot = await getDocs(userQuery);
+          // Check cache first
+          let userId = emailToUidCache[email];
           
-          if (userSnapshot.docs.length > 0) {
-            const userId = userSnapshot.docs[0].id;
+          // If not in cache, query Firestore
+          if (!userId) {
+            const userQuery = query(usersCollection, where('email', '==', email));
+            const userSnapshot = await getDocs(userQuery);
+            
+            if (userSnapshot.docs.length > 0) {
+              userId = userSnapshot.docs[0].id;
+              emailToUidCache[email] = userId;
+            }
+          }
+          
+          // Update job with UID if found
+          if (userId) {
             await updateDoc(doc(this.firestore, 'jobs', jobDoc.id), {
               postedBy: userId
             });
-            console.log(`[Fix postedBy] Updated job ${jobDoc.id} postedBy from email to UID`);
+            console.log(`[Fix postedBy] Job ${jobDoc.id}: ${email} → ${userId}`);
             fixedCount++;
+          } else {
+            console.warn(`[Fix postedBy] Could not find UID for email: ${email}`);
           }
         }
       }
       
       if (fixedCount > 0) {
         console.log(`%c✓ Fixed ${fixedCount} jobs with email postedBy`, 'color: blue; font-weight: bold;');
+      } else {
+        console.log('[Fix postedBy] No jobs needed fixing');
       }
     } catch (error) {
       console.error('Fix postedBy error:', error);
@@ -116,14 +134,20 @@ export class EmployerSeedService {
       const snapshot = await getDocs(jobsCollection);
       
       let migratedCount = 0;
+      const usersCollection = collection(this.firestore, 'users');
+      
+      // Get the first employer's UID for default assignments
+      const firstEmployerQuery = query(usersCollection, where('email', '==', EMPLOYER_SEED_DATA[0].email));
+      const firstEmployerSnapshot = await getDocs(firstEmployerQuery);
+      const defaultEmployerId = firstEmployerSnapshot.docs.length > 0 ? firstEmployerSnapshot.docs[0].id : EMPLOYER_SEED_DATA[0].email;
       
       for (const jobDoc of snapshot.docs) {
         const data = jobDoc.data();
         const needsUpdate: any = {};
         
-        // Add missing postedBy field (default to first employer)
+        // Add missing postedBy field (default to first employer UID)
         if (!data['postedBy']) {
-          needsUpdate.postedBy = EMPLOYER_SEED_DATA[0].email;
+          needsUpdate.postedBy = defaultEmployerId;
           console.log(`[Migration] Added postedBy to job ${jobDoc.id}`);
         }
         
