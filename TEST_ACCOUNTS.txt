@@ -2,6 +2,12 @@
 COMMUNITY JOB BOARD - TEST ACCOUNTS
 ================================================================================
 
+ADMIN ACCOUNT
+Password: Admin123!
+================================================================================
+Email: admin@example.com
+Note: Admin can view, approve, reject, and delete job listings
+
 EMPLOYER ACCOUNTS
 Password: Employer123!
 ================================================================================
