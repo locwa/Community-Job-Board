@@ -1,14 +1,24 @@
 <h1 class="fw-bold my-4 text-center">Find Jobs</h1>
 <div class="container-fluid">
-  <div class="row w-100 d-flex justify-content-center">
-    <div class="col-6">
+  <div class="row w-100 d-flex justify-content-center gap-2">
+    <div class="col-4">
       <input type="text" class="form-control" name="job-title" id="job-title" placeholder="Search for Title" [(ngModel)]="jobTitleSearch">
     </div>
-    <div class="col-4">
+    <div class="col-3">
       <input type="text" class="form-control" name="job-location" id="job-location" placeholder="Location (e.g, Manila)" [(ngModel)]="jobLocationSearch">
+    </div>
+    <div class="col-2">
+      <select class="form-control" name="job-type" id="job-type" [(ngModel)]="jobTypeSearch">
+        @for (type of jobTypes; track type.value) {
+          <option [value]="type.value">{{ type.label }}</option>
+        }
+      </select>
     </div>
     <div class="col-1">
       <button class="btn btn-primary w-100" (click)="searchJob()">Search</button>
+    </div>
+    <div class="col-1">
+      <button class="btn btn-outline-secondary w-100" (click)="resetFilters()">Reset</button>
     </div>
   </div>
 </div>

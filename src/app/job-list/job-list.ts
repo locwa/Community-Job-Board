@@ -20,8 +20,16 @@ export class JobList implements OnInit {
   jobs: Job[] = [];
   jobTitleSearch = "";
   jobLocationSearch = "";
+  jobTypeSearch = "";
 
   jobDetails: Job | null = null;
+
+  jobTypes = [
+    { value: "", label: "All Job Types" },
+    { value: "Full Time", label: "Full Time" },
+    { value: "Part Time", label: "Part Time" },
+    { value: "Remote", label: "Remote" }
+  ];
 
   filters = {
     title: "",
@@ -40,9 +48,22 @@ export class JobList implements OnInit {
       title: this.jobTitleSearch,
       company: "",
       location: this.jobLocationSearch,
-      type: ""
+      type: this.jobTypeSearch
     };
     this.jobs = this.jobService.list(this.filters);
+  }
+
+  resetFilters() {
+    this.jobTitleSearch = "";
+    this.jobLocationSearch = "";
+    this.jobTypeSearch = "";
+    this.filters = {
+      title: "",
+      company: "",
+      location: "",
+      type: ""
+    };
+    this.jobs = this.jobService.list();
   }
 
   viewJob(id: string | undefined) {
