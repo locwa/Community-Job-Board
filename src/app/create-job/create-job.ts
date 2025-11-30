@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { JobsService } from '../services/jobs-service';
 import { Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
+import { EMPLOYER_SEED_DATA } from '../seeds/employer-seed';
 
 @Component({
   selector: 'app-create-job',
@@ -30,12 +31,18 @@ export class CreateJob implements OnInit {
   isSubmitting = false;
 
   ngOnInit() {
-    // Get company from user profile when component initializes
+    // Get company from user profile or derive from email
     const profile = this.authService.userProfile();
     if (profile?.company) {
       this.company = profile.company;
-      console.log("Company loaded from profile:", this.company);
+    } else if (profile?.email) {
+      // Derive company from email based on seed data
+      const employer = EMPLOYER_SEED_DATA.find(emp => emp.email === profile.email);
+      if (employer) {
+        this.company = employer.company;
+      }
     }
+    console.log("Company loaded:", this.company);
   }
 
   openConfirmModal() {
