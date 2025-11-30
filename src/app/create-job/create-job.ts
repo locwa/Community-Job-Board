@@ -39,21 +39,16 @@ export class CreateJob {
   openConfirmModal() {
     this.error = "";
     
-    // Validate only user-editable fields (company is auto-set from profile)
+    // Validate user-editable fields
     if (!this.title || !this.location || !this.type || !this.description || !this.salary) {
       this.error = "Please fill in all fields";
       return;
     }
 
-    // Ensure company is set from profile
+    // Get company from profile (should already be set in constructor)
     const profile = this.authService.userProfile();
     if (profile?.company) {
       this.company = profile.company;
-    }
-
-    if (!this.company) {
-      this.error = "Company information not available. Please log in again.";
-      return;
     }
 
     this.showConfirmModal = true;
