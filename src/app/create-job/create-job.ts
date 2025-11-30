@@ -25,10 +25,26 @@ export class CreateJob implements OnInit {
   location: string = "";
   type: string = "";
   description: string = "";
+  salaryMin: string = "";
+  salaryMax: string = "";
   salary: string = "";
   error: string = "";
   showConfirmModal = false;
   isSubmitting = false;
+
+  salaryOptions = [
+    { value: 10000, label: "₱10,000" },
+    { value: 20000, label: "₱20,000" },
+    { value: 30000, label: "₱30,000" },
+    { value: 40000, label: "₱40,000" },
+    { value: 50000, label: "₱50,000" },
+    { value: 75000, label: "₱75,000" },
+    { value: 100000, label: "₱100,000" },
+    { value: 150000, label: "₱150,000" },
+    { value: 200000, label: "₱200,000" },
+    { value: 250000, label: "₱250,000" },
+    { value: 300000, label: "₱300,000+" }
+  ];
 
   ngOnInit() {
     // Get company from user profile or derive from email
@@ -49,10 +65,20 @@ export class CreateJob implements OnInit {
     this.error = "";
     
     // Validate user-editable fields
-    if (!this.title || !this.location || !this.type || !this.description || !this.salary) {
+    if (!this.title || !this.location || !this.type || !this.description || !this.salaryMin || !this.salaryMax) {
       this.error = "Please fill in all fields";
       return;
     }
+
+    // Format salary range
+    const minNum = parseInt(this.salaryMin);
+    const maxNum = parseInt(this.salaryMax);
+    if (minNum >= maxNum) {
+      this.error = "Minimum salary must be less than maximum salary";
+      return;
+    }
+
+    this.salary = `₱${minNum.toLocaleString()} - ₱${maxNum.toLocaleString()}`;
 
     // Ensure company is set from profile
     const profile = this.authService.userProfile();

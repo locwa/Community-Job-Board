@@ -22,8 +22,22 @@
     </select>
   </div>
   <div class="row">
-    <label for="title">Salary</label>
-    <input type="text" name="job-salary" id="" [(ngModel)]="salary">
+    <label for="salary-min">Salary Range</label>
+    <div style="display: flex; gap: 10px; align-items: center;">
+      <select name="salary-min" id="salary-min" [(ngModel)]="salaryMin" class="form-control">
+        <option value="">Min Salary</option>
+        @for (option of salaryOptions; track option.value) {
+          <option [value]="option.value">{{ option.label }}</option>
+        }
+      </select>
+      <span>-</span>
+      <select name="salary-max" id="salary-max" [(ngModel)]="salaryMax" class="form-control">
+        <option value="">Max Salary</option>
+        @for (option of salaryOptions; track option.value) {
+          <option [value]="option.value">{{ option.label }}</option>
+        }
+      </select>
+    </div>
   </div>
   <div class="row">
     <label for="description">Description</label>
