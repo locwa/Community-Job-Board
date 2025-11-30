@@ -28,6 +28,7 @@ export class JobList implements OnInit {
     { value: "", label: "All Job Types" },
     { value: "Full-Time", label: "Full-Time" },
     { value: "Part-Time", label: "Part-Time" },
+    { value: "Contract", label: "Contract" },
     { value: "Remote", label: "Remote" }
   ];
 
