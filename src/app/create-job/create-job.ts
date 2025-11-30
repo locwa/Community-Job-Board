@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { JobsService } from '../services/jobs-service';
@@ -14,7 +14,7 @@ import { AuthService } from '../services/auth.service';
   templateUrl: './create-job.html',
   styleUrl: './create-job.css',
 })
-export class CreateJob {
+export class CreateJob implements OnInit {
   private jobService = inject(JobsService);
   private router = inject(Router);
   private authService = inject(AuthService);
@@ -29,10 +29,12 @@ export class CreateJob {
   showConfirmModal = false;
   isSubmitting = false;
 
-  constructor() {
+  ngOnInit() {
+    // Get company from user profile when component initializes
     const profile = this.authService.userProfile();
     if (profile?.company) {
       this.company = profile.company;
+      console.log("Company loaded from profile:", this.company);
     }
   }
 
@@ -45,10 +47,13 @@ export class CreateJob {
       return;
     }
 
-    // Get company from profile (should already be set in constructor)
+    // Ensure company is set from profile
     const profile = this.authService.userProfile();
     if (profile?.company) {
       this.company = profile.company;
+      console.log("Company set to:", this.company);
+    } else {
+      console.warn("Company not found in profile:", profile);
     }
 
     this.showConfirmModal = true;
