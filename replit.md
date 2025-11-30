@@ -11,6 +11,12 @@ A community job board application built with Angular 20 and Firebase. This app a
 - **Applicant**: Can browse jobs, save jobs for later, and apply to positions
 
 ## Recent Changes
+- **2025-11-30**: Enhanced employer experience
+  - Hidden "Find Jobs" navigation link for employers (only visible for applicants/unauthenticated users)
+  - Company field in create-job form auto-populated with employer's company and disabled for editing
+  - Added `company` field to UserProfile to store employer company name
+  - Updated employer seed service to set company on profile creation
+
 - **2025-11-30**: Integrated Firestore and added employer accounts
   - Refactored JobsService to use Firestore instead of in-memory data
   - Removed hardcoded sample data array - jobs now load from Firestore

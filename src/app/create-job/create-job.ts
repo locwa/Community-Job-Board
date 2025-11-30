@@ -25,6 +25,13 @@ export class CreateJob {
   salary: string = "";
   error: string = "";
 
+  constructor() {
+    const profile = this.authService.userProfile();
+    if (profile?.company) {
+      this.company = profile.company;
+    }
+  }
+
   async addJob(){
     this.error = "";
     

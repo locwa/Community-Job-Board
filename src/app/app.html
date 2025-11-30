@@ -4,7 +4,9 @@
       <h1 class="py-3 fw-bold mb-0">JobBoard</h1>
     </a>
     <div class="d-flex gap-3 align-items-center">
-      <a class="nav-link text-white" routerLink="/job-list">Find Jobs</a>
+      @if (authService.isApplicant() || !authService.isLoggedIn()) {
+        <a class="nav-link text-white" routerLink="/job-list">Find Jobs</a>
+      }
       
       @if (authService.isLoggedIn()) {
         @if (authService.isApplicant()) {

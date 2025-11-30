@@ -37,6 +37,7 @@ export class EmployerSeedService {
             uid: credential.user.uid,
             email: employer.email,
             role: 'employer',
+            company: employer.company,
             savedJobs: [],
             createdAt: new Date()
           };

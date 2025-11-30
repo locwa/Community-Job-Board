@@ -5,6 +5,7 @@ export interface UserProfile {
   email: string;
   role: UserRole;
   displayName?: string;
+  company?: string;
   savedJobs?: string[];
   createdAt: Date;
 }
