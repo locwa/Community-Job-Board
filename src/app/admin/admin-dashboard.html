@@ -1,0 +1,113 @@
+<div class="container py-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Admin Dashboard</h2>
+    <span class="badge bg-dark">{{ jobs().length }} Jobs</span>
+  </div>
+
+  @if (actionMessage()) {
+    <div 
+      class="alert" 
+      [class.alert-success]="actionMessage()?.type === 'success'"
+      [class.alert-danger]="actionMessage()?.type === 'error'"
+    >
+      {{ actionMessage()?.text }}
+    </div>
+  }
+
+  @if (loading()) {
+    <div class="text-center py-5">
+      <div class="spinner-border" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+    </div>
+  } @else {
+    <div class="table-responsive">
+      <table class="table table-hover">
+        <thead class="table-dark">
+          <tr>
+            <th>ID</th>
+            <th>Title</th>
+            <th>Company</th>
+            <th>Location</th>
+            <th>Type</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (job of jobs(); track job.id) {
+            <tr>
+              <td>{{ job.id }}</td>
+              <td>
+                <strong>{{ job.title }}</strong>
+              </td>
+              <td>{{ job.company }}</td>
+              <td>{{ job.location }}</td>
+              <td>
+                <span class="badge bg-secondary">{{ job.type }}</span>
+              </td>
+              <td>
+                <button 
+                  class="btn btn-sm btn-outline-primary me-1" 
+                  (click)="selectJob(job)"
+                >
+                  View
+                </button>
+                <button 
+                  class="btn btn-sm btn-outline-danger" 
+                  (click)="deleteJob(job)"
+                >
+                  Delete
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>
+
+@if (selectedJob()) {
+  <div class="modal-backdrop" (click)="closeModal()"></div>
+  <div class="modal-container">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">{{ selectedJob()?.title }}</h5>
+        <button type="button" class="btn-close" (click)="closeModal()"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-3">
+          <label class="fw-bold">Company:</label>
+          <p>{{ selectedJob()?.company }}</p>
+        </div>
+        <div class="mb-3">
+          <label class="fw-bold">Location:</label>
+          <p>{{ selectedJob()?.location }}</p>
+        </div>
+        <div class="mb-3">
+          <label class="fw-bold">Type:</label>
+          <p>{{ selectedJob()?.type }}</p>
+        </div>
+        <div class="mb-3">
+          <label class="fw-bold">Salary:</label>
+          <p class="text-success">{{ selectedJob()?.salary }}</p>
+        </div>
+        <div class="mb-3">
+          <label class="fw-bold">Description:</label>
+          <p>{{ selectedJob()?.description }}</p>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-success" (click)="approveJob(selectedJob()!)">
+          Approve
+        </button>
+        <button class="btn btn-warning" (click)="rejectJob(selectedJob()!)">
+          Reject
+        </button>
+        <button class="btn btn-danger" (click)="deleteJob(selectedJob()!)">
+          Delete
+        </button>
+      </div>
+    </div>
+  </div>
+}

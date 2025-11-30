@@ -39,6 +39,36 @@
         >
       </div>
 
+      @if (isRegisterMode()) {
+        <div class="mb-4">
+          <label class="form-label">I am a...</label>
+          <div class="role-selector">
+            <button 
+              type="button" 
+              class="role-btn"
+              [class.active]="selectedRole() === 'applicant'"
+              (click)="setRole('applicant')"
+              [disabled]="loading()"
+            >
+              <div class="role-icon">👤</div>
+              <div class="role-title">Job Seeker</div>
+              <div class="role-desc">Looking for jobs</div>
+            </button>
+            <button 
+              type="button" 
+              class="role-btn"
+              [class.active]="selectedRole() === 'employer'"
+              (click)="setRole('employer')"
+              [disabled]="loading()"
+            >
+              <div class="role-icon">🏢</div>
+              <div class="role-title">Employer</div>
+              <div class="role-desc">Posting jobs</div>
+            </button>
+          </div>
+        </div>
+      }
+
       <button 
         type="submit" 
         class="btn btn-primary w-100 mb-3"

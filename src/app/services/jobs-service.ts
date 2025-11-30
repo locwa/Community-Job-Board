@@ -1,5 +1,6 @@
-import { Injectable } from '@angular/core';
-
+import { Injectable, inject } from '@angular/core';
+import { Firestore, doc, updateDoc, arrayUnion, arrayRemove } from '@angular/fire/firestore';
+import { AuthService } from './auth.service';
 
 export interface Job {
   id: number;
@@ -11,12 +12,11 @@ export interface Job {
   salary: string;
 }
 
-
 @Injectable({ providedIn: 'root' })
 export class JobsService {
+  private firestore = inject(Firestore);
+  private authService = inject(AuthService);
 
-
-// sample data
   private jobs: Job[] = [
     { id: 1, title: 'Frontend Developer', company: 'TechCorp', location: 'Manila', type: 'Full-time', description: 'Develop and maintain UI components using Angular and modern web technologies.', salary: '₱40,000 - ₱60,000' },
     { id: 2, title: 'Backend Developer', company: 'DevSolutions', location: 'Cebu', type: 'Full-time', description: 'Build and optimize backend services using Node.js and database systems.', salary: '₱45,000 - ₱70,000' },
@@ -30,9 +30,6 @@ export class JobsService {
     { id: 10, title: 'Content Writer', company: 'CopyCraft', location: 'Remote', type: 'Part-time', description: 'Write high-quality blog posts, technical documentation, and marketing content.', salary: '₱15,000 - ₱25,000' }
   ];
 
-  constructor() {}
-
-// return all jobs (with optional filtering)
   list(filter?: { title?: string; company?: string; location?: string; type?: string }): Job[] {
     if (!filter) return this.jobs;
     return this.jobs.filter(job => {
@@ -40,33 +37,26 @@ export class JobsService {
         ? job.title.toLowerCase().includes(filter.title.toLowerCase())
         : true;
 
-
       const matchCompany = filter.company
         ? job.company.toLowerCase().includes(filter.company.toLowerCase())
         : true;
-
 
       const matchLocation = filter.location
         ? job.location.toLowerCase().includes(filter.location.toLowerCase())
         : true;
 
-
       const matchType = filter.type
         ? job.type.toLowerCase() === filter.type.toLowerCase()
         : true;
-
 
       return matchTitle && matchCompany && matchLocation && matchType;
     });
   }
 
-// get one job by id
   getById(id: number): Job | undefined {
     return this.jobs.find(j => j.id === id);
   }
 
-
-// create a new job entry
   create(job: Omit<Job, 'id'>): Job {
     const newJob: Job = {
       id: this.jobs.length + 1,
@@ -76,25 +66,78 @@ export class JobsService {
     return newJob;
   }
 
-
-// update an existing job
   update(id: number, updated: Partial<Job>): Job | undefined {
     const index = this.jobs.findIndex(j => j.id === id);
     if (index === -1) return undefined;
-
 
     this.jobs[index] = {...this.jobs[index], ...updated};
     return this.jobs[index];
   }
 
-
-// delete a job
   delete(id: number): boolean {
     const index = this.jobs.findIndex(j => j.id === id);
     if (index === -1) return false;
 
-
     this.jobs.splice(index, 1);
     return true;
+  }
+
+  isJobSaved(jobId: string): boolean {
+    const savedJobs = this.authService.userProfile()?.savedJobs || [];
+    return savedJobs.includes(jobId);
+  }
+
+  async saveJob(jobId: string): Promise<void> {
+    const user = this.authService.currentUser();
+    if (!user) return;
+
+    try {
+      const userDocRef = doc(this.firestore, 'users', user.uid);
+      await updateDoc(userDocRef, {
+        savedJobs: arrayUnion(jobId)
+      });
+      
+      const currentProfile = this.authService.userProfile();
+      if (currentProfile) {
+        const updatedSavedJobs = [...(currentProfile.savedJobs || []), jobId];
+        this.authService.userProfile.set({
+          ...currentProfile,
+          savedJobs: updatedSavedJobs
+        });
+      }
+    } catch (error) {
+      console.error('Error saving job:', error);
+    }
+  }
+
+  async unsaveJob(jobId: string): Promise<void> {
+    const user = this.authService.currentUser();
+    if (!user) return;
+
+    try {
+      const userDocRef = doc(this.firestore, 'users', user.uid);
+      await updateDoc(userDocRef, {
+        savedJobs: arrayRemove(jobId)
+      });
+      
+      const currentProfile = this.authService.userProfile();
+      if (currentProfile) {
+        const updatedSavedJobs = (currentProfile.savedJobs || []).filter(id => id !== jobId);
+        this.authService.userProfile.set({
+          ...currentProfile,
+          savedJobs: updatedSavedJobs
+        });
+      }
+    } catch (error) {
+      console.error('Error unsaving job:', error);
+    }
+  }
+
+  async toggleSaveJob(jobId: string): Promise<void> {
+    if (this.isJobSaved(jobId)) {
+      await this.unsaveJob(jobId);
+    } else {
+      await this.saveJob(jobId);
+    }
   }
 }

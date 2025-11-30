@@ -3,9 +3,23 @@
 ## Overview
 A community job board application built with Angular 20 and Firebase. This app allows users to view job listings, create job postings, and apply for jobs. The application uses Firebase Authentication, Firestore for data storage, and Bootstrap for styling.
 
-**Current State:** Configured for Replit environment and ready to run. The Angular dev server is set up on port 5000 with proper host configuration for Replit's proxy environment.
+**Current State:** Configured for Replit environment with role-based user accounts (admin, employer, applicant).
+
+## User Roles
+- **Admin**: Can moderate job listings (view, approve, reject, delete jobs)
+- **Employer**: Can create and manage job postings
+- **Applicant**: Can browse jobs, save jobs for later, and apply to positions
 
 ## Recent Changes
+- **2025-11-30**: Implemented role-based account system
+  - Added three user roles: admin, employer, applicant
+  - User profiles stored in Firestore with role information
+  - Registration form allows choosing between Job Seeker and Employer roles
+  - Route guards protect pages based on user role
+  - Navigation shows role-specific links
+  - Saved Jobs feature for applicants
+  - Admin Dashboard for job moderation
+
 - **2025-11-30**: Added Login/Registration functionality
   - Created AuthService for Firebase authentication (login, register, logout)
   - Built Login component with email/password form and mode toggle
@@ -25,7 +39,7 @@ A community job board application built with Angular 20 and Firebase. This app a
 ### Frontend (Angular 20)
 - **Framework**: Angular 20.3.13 with standalone components
 - **Styling**: Bootstrap 5.3.8 + custom CSS
-- **State Management**: RxJS 7.8.0
+- **State Management**: RxJS 7.8.0, Angular Signals
 - **Build System**: Angular CLI with @angular/build
 
 ### Backend/Services
@@ -36,19 +50,32 @@ A community job board application built with Angular 20 and Firebase. This app a
 ```
 src/
 ├── app/
-│   ├── create-job/          # Component for creating new job postings
+│   ├── admin/               # Admin dashboard for job moderation
+│   │   ├── admin-dashboard.ts
+│   │   ├── admin-dashboard.html
+│   │   └── admin-dashboard.css
+│   ├── create-job/          # Component for creating new job postings (employers only)
+│   ├── guards/              # Route guards for role-based access
+│   │   ├── auth.guard.ts    # Protects routes requiring authentication
+│   │   └── role.guard.ts    # Role-based guards (employer, admin)
 │   ├── job-application-modal/ # Modal for applying to jobs
 │   ├── job-list/            # Component for displaying job listings
-│   ├── login/               # Login/Registration component
+│   ├── login/               # Login/Registration component with role selection
 │   │   ├── login.ts
 │   │   ├── login.html
 │   │   └── login.css
+│   ├── models/              # TypeScript interfaces
+│   │   └── user.model.ts    # UserProfile and UserRole types
+│   ├── saved-jobs/          # Saved jobs page for applicants
+│   │   ├── saved-jobs.ts
+│   │   ├── saved-jobs.html
+│   │   └── saved-jobs.css
 │   ├── services/
-│   │   ├── auth.service.ts  # Firebase authentication service
-│   │   └── jobs-service.ts  # Service for job data operations
+│   │   ├── auth.service.ts  # Firebase authentication with role management
+│   │   └── jobs-service.ts  # Job data operations + save/unsave jobs
 │   ├── app.config.ts        # Application configuration with Firebase
-│   ├── app.routes.ts        # Routing configuration
-│   └── app.ts               # Root component
+│   ├── app.routes.ts        # Routing configuration with guards
+│   └── app.ts               # Root component with role-based navigation
 ├── environments/
 │   └── environment.ts       # Environment configuration (Firebase credentials)
 ├── index.html
@@ -61,12 +88,19 @@ package.json                 # Dependencies and scripts
 ```
 
 ### Key Components
-1. **Job List Component**: Displays available job postings
-2. **Create Job Component**: Form for creating new job listings
+1. **Job List Component**: Displays available job postings with save functionality for applicants
+2. **Create Job Component**: Form for creating new job listings (employers/admins only)
 3. **Job Application Modal**: Modal dialog for applying to jobs
-4. **Login Component**: Handles user login and registration
-5. **Auth Service**: Firebase authentication (login, register, logout, state management)
-6. **Jobs Service**: Handles all job-related data operations (currently using sample data)
+4. **Login Component**: Handles user login and registration with role selection
+5. **Saved Jobs Component**: Shows saved jobs for applicants
+6. **Admin Dashboard**: Moderation interface for admins
+7. **Auth Service**: Firebase authentication with role management
+8. **Jobs Service**: Job CRUD operations + save/unsave functionality
+
+### Route Guards
+- **authGuard**: Requires user to be logged in
+- **employerGuard**: Requires employer or admin role
+- **adminGuard**: Requires admin role
 
 ### Dependencies
 - Angular Core & Platform Browser
@@ -103,8 +137,11 @@ Configured for static site deployment:
 
 ## Firebase Configuration
 The app uses Firebase for:
-- **Authentication**: User login/signup
-- **Firestore**: Job listings and application data storage
+- **Authentication**: User login/signup with email/password
+- **Firestore**: User profiles with roles, saved jobs
+
+Firebase collections:
+- `users`: User profiles with uid, email, role, savedJobs, createdAt
 
 Firebase configuration is stored in `src/environments/environment.ts` and includes:
 - Project: community-appdev
@@ -114,3 +151,4 @@ Firebase configuration is stored in `src/environments/environment.ts` and includ
 - Analytics disabled in Angular CLI configuration
 - Dev server configured with `allowedHosts: true` to work with Replit's proxy environment
 - Bootstrap CSS included globally via angular.json styles configuration
+- Route guards wait for Firebase auth state to prevent redirect issues on page refresh

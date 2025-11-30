@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { AuthService } from '../services/auth.service';
+import { UserRole } from '../models/user.model';
 
 @Component({
   selector: 'app-login',
@@ -16,6 +17,7 @@ export class Login implements OnInit, OnDestroy {
 
   email = signal('');
   password = signal('');
+  selectedRole = signal<UserRole>('applicant');
   isRegisterMode = signal(false);
 
   loading = this.authService.loading;
@@ -38,6 +40,11 @@ export class Login implements OnInit, OnDestroy {
   resetForm() {
     this.email.set('');
     this.password.set('');
+    this.selectedRole.set('applicant');
+  }
+
+  setRole(role: UserRole) {
+    this.selectedRole.set(role);
   }
 
   async onSubmit() {
@@ -49,9 +56,12 @@ export class Login implements OnInit, OnDestroy {
       return;
     }
 
-    const success = this.isRegisterMode()
-      ? await this.authService.register(email, password)
-      : await this.authService.login(email, password);
+    let success: boolean;
+    if (this.isRegisterMode()) {
+      success = await this.authService.register(email, password, this.selectedRole());
+    } else {
+      success = await this.authService.login(email, password);
+    }
 
     if (success) {
       this.resetForm();
