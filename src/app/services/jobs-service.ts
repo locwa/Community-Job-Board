@@ -13,7 +13,8 @@ import {
   deleteDoc,
   setDoc,
   getDoc,
-  writeBatch
+  writeBatch,
+  Timestamp
 } from '@angular/fire/firestore';
 import { AuthService } from './auth.service';
 import { Job } from '../models/job.model';
@@ -37,10 +38,14 @@ export class JobsService {
       const q = query(jobsCollection, where('status', '==', 'approved'));
       const snapshot = await getDocs(q);
       
-      const loadedJobs: Job[] = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data() as Omit<Job, 'id'>
-      }));
+      const loadedJobs: Job[] = snapshot.docs.map(doc => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          ...data,
+          postedDate: data['postedDate']?.toDate ? data['postedDate'].toDate() : data['postedDate']
+        } as Job;
+      });
       
       this.jobs.set(loadedJobs);
     } catch (error) {
@@ -83,16 +88,21 @@ export class JobsService {
   async create(job: Omit<Job, 'id'>): Promise<Job | null> {
     try {
       const jobsCollection = collection(this.firestore, 'jobs');
-      const docRef = await addDoc(jobsCollection, {
+      const now = Timestamp.now();
+      const jobData = {
         ...job,
-        postedDate: new Date(),
+        postedDate: now,
         status: 'pending'
-      });
+      };
+      
+      console.log('Creating job with data:', jobData);
+      const docRef = await addDoc(jobsCollection, jobData);
+      console.log('Job created with ID:', docRef.id);
       
       const newJob: Job = {
         id: docRef.id,
         ...job,
-        postedDate: new Date(),
+        postedDate: now.toDate(),
         status: 'pending'
       };
       
@@ -102,7 +112,7 @@ export class JobsService {
       return newJob;
     } catch (error) {
       console.error('Error creating job:', error);
-      return null;
+      throw error;
     }
   }
 
@@ -202,15 +212,22 @@ export class JobsService {
 
   async getEmployerJobs(employerId: string): Promise<Job[]> {
     try {
+      console.log('Loading jobs for employer:', employerId);
       const jobsCollection = collection(this.firestore, 'jobs');
       const q = query(jobsCollection, where('postedBy', '==', employerId));
       const snapshot = await getDocs(q);
       
-      const employerJobs: Job[] = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data() as Omit<Job, 'id'>
-      }));
+      console.log('Found', snapshot.docs.length, 'jobs for employer');
+      const employerJobs: Job[] = snapshot.docs.map(doc => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          ...data,
+          postedDate: data['postedDate']?.toDate ? data['postedDate'].toDate() : data['postedDate']
+        } as Job;
+      });
       
+      console.log('Mapped employer jobs:', employerJobs);
       return employerJobs;
     } catch (error) {
       console.error('Error loading employer jobs:', error);

@@ -40,6 +40,12 @@ export class CreateJob {
       return;
     }
 
+    const userId = this.authService.currentUser()?.uid;
+    if (!userId) {
+      this.error = "User not authenticated";
+      return;
+    }
+
     const newJob = {
       title: this.title,
       company: this.company,
@@ -47,14 +53,20 @@ export class CreateJob {
       type: this.type,
       description: this.description,
       salary: this.salary,
-      postedBy: this.authService.currentUser()?.uid
+      postedBy: userId
     };
 
-    const created = await this.jobService.create(newJob);
-    if (created) {
-      this.router.navigate(['/']);
-    } else {
-      this.error = "Failed to create job";
+    try {
+      const created = await this.jobService.create(newJob);
+      if (created) {
+        console.log("Job created successfully:", created);
+        this.router.navigate(['/employer-jobs']);
+      } else {
+        this.error = "Failed to create job";
+      }
+    } catch (err) {
+      console.error("Error creating job:", err);
+      this.error = "Error creating job: " + (err instanceof Error ? err.message : String(err));
     }
   }
 }
