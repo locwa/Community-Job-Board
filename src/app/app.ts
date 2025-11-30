@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { AuthService } from './services/auth.service';
 import { JobsService } from './services/jobs-service';
 import { EmployerSeedService } from './seeds/employer-seed';
+import { ApplicantSeedService } from './seeds/applicant-seed';
 
 @Component({
   selector: 'app-root',
@@ -16,9 +17,11 @@ export class App implements OnInit {
   protected authService = inject(AuthService);
   private jobsService = inject(JobsService);
   private employerSeedService = inject(EmployerSeedService);
+  private applicantSeedService = inject(ApplicantSeedService);
 
   async ngOnInit() {
     await this.employerSeedService.initializeEmployers();
+    await this.applicantSeedService.initializeApplicants();
     await this.jobsService.initializeSampleData();
     await this.jobsService.loadJobs();
   }
