@@ -64,7 +64,48 @@
               <p class="text-muted">No applicants yet</p>
             }
           </div>
+
+          <div class="action-buttons mt-4 d-flex gap-2">
+            @if (!editingJob) {
+              <button class="btn btn-primary" (click)="startEdit(selectedJob)">Edit</button>
+              <button class="btn btn-danger" (click)="deleteJob(selectedJob.id)" [disabled]="isDeleting">
+                {{ isDeleting ? 'Deleting...' : 'Delete' }}
+              </button>
+            }
+          </div>
         </div>
+        
+        @if (editingJob) {
+          <div class="job-edit-card">
+            <h3>Edit Job</h3>
+            <div class="form-group mb-3">
+              <label>Title</label>
+              <input type="text" class="form-control" [(ngModel)]="editingJob.title" />
+            </div>
+            <div class="form-group mb-3">
+              <label>Location</label>
+              <input type="text" class="form-control" [(ngModel)]="editingJob.location" />
+            </div>
+            <div class="form-group mb-3">
+              <label>Type</label>
+              <input type="text" class="form-control" [(ngModel)]="editingJob.type" />
+            </div>
+            <div class="form-group mb-3">
+              <label>Salary</label>
+              <input type="text" class="form-control" [(ngModel)]="editingJob.salary" />
+            </div>
+            <div class="form-group mb-3">
+              <label>Description</label>
+              <textarea class="form-control" rows="4" [(ngModel)]="editingJob.description"></textarea>
+            </div>
+            <div class="d-flex gap-2">
+              <button class="btn btn-success" (click)="saveEdit()" [disabled]="isSaving">
+                {{ isSaving ? 'Saving...' : 'Save' }}
+              </button>
+              <button class="btn btn-secondary" (click)="cancelEdit()" [disabled]="isSaving">Cancel</button>
+            </div>
+          </div>
+        }
       } @else {
         <div class="empty-details text-center py-5">
           <p class="text-muted">Select a job to view details</p>
