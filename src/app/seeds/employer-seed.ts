@@ -63,12 +63,69 @@ export class EmployerSeedService {
         }
       }
       
+      // Now map jobs to correct employers AFTER all accounts are created
+      await this.mapJobsToCorrectEmployers();
+      
       await signOut(this.auth);
       console.log('%c=== EMPLOYER TEST ACCOUNTS ===', 'color: green; font-size: 14px; font-weight: bold;');
       console.log(`Password: ${EMPLOYER_PASSWORD}`);
       EMPLOYER_SEED_DATA.forEach(emp => console.log(`${emp.company}: ${emp.email}`));
     } catch (error) {
       console.error('Employer initialization error:', error);
+    }
+  }
+
+  private async mapJobsToCorrectEmployers(): Promise<void> {
+    try {
+      const jobsCollection = collection(this.firestore, 'jobs');
+      const jobsSnapshot = await getDocs(jobsCollection);
+      
+      const usersCollection = collection(this.firestore, 'users');
+      
+      // Create a mapping of company name to employer UID
+      const companyToEmployerMap: { [company: string]: string } = {};
+      
+      for (const employer of EMPLOYER_SEED_DATA) {
+        const userQuery = query(usersCollection, where('email', '==', employer.email));
+        const userSnapshot = await getDocs(userQuery);
+        
+        if (userSnapshot.docs.length > 0) {
+          const employerId = userSnapshot.docs[0].id;
+          companyToEmployerMap[employer.company] = employerId;
+          console.log(`[Map Jobs] Found ${employer.company} → ${employerId}`);
+        }
+      }
+      
+      let correctedCount = 0;
+      
+      for (const jobDoc of jobsSnapshot.docs) {
+        const data = jobDoc.data();
+        const jobCompany = data['company'];
+        const currentPostedBy = data['postedBy'];
+        
+        // Find the correct employer UID for this job's company
+        const correctEmployerId = companyToEmployerMap[jobCompany];
+        
+        if (correctEmployerId) {
+          if (correctEmployerId !== currentPostedBy) {
+            await updateDoc(doc(this.firestore, 'jobs', jobDoc.id), {
+              postedBy: correctEmployerId
+            });
+            console.log(`[Map Jobs] Job "${data['title']}" (${jobCompany}): ${currentPostedBy} → ${correctEmployerId}`);
+            correctedCount++;
+          }
+        } else {
+          console.warn(`[Map Jobs] No employer found for company: ${jobCompany}`);
+        }
+      }
+      
+      if (correctedCount > 0) {
+        console.log(`%c✓ Corrected ${correctedCount} jobs to their proper employers`, 'color: purple; font-weight: bold;');
+      } else {
+        console.log('[Map Jobs] All jobs already have correct employer assignments');
+      }
+    } catch (error) {
+      console.error('Map jobs to employers error:', error);
     }
   }
 
