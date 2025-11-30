@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { Auth, createUserWithEmailAndPassword, signOut } from '@angular/fire/auth';
-import { Firestore, doc, setDoc } from '@angular/fire/firestore';
+import { Firestore, doc, setDoc, collection, getDocs, query, where } from '@angular/fire/firestore';
 import { UserProfile } from '../models/user.model';
 
 export const EMPLOYER_SEED_DATA = [
@@ -47,6 +47,14 @@ export class EmployerSeedService {
         } catch (error: any) {
           if (error.code === 'auth/email-already-in-use') {
             console.log(`✓ Employer exists: ${employer.company}`);
+            // Update existing profile to include company field if missing
+            const userQuery = (await getDocs(
+              query(collection(this.firestore, 'users'), where('email', '==', employer.email))
+            )).docs[0];
+            if (userQuery) {
+              await setDoc(doc(this.firestore, 'users', userQuery.id), { company: employer.company }, { merge: true });
+              console.log(`✓ Updated employer company: ${employer.company}`);
+            }
           } else {
             console.error(`✗ Error creating ${employer.company}:`, error.message);
           }
