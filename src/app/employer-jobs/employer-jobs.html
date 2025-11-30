@@ -66,46 +66,11 @@
           </div>
 
           <div class="action-buttons mt-4 d-flex gap-2">
-            @if (!editingJob) {
-              <button class="btn btn-primary" (click)="startEdit(selectedJob)">Edit</button>
-              <button class="btn btn-danger" (click)="openDeleteConfirm(selectedJob.id)" [disabled]="isDeleting">
-                Delete
-              </button>
-            }
+            <button class="btn btn-primary" (click)="startEdit(selectedJob)">Edit</button>
+            <button class="btn btn-danger" (click)="openDeleteConfirm(selectedJob.id)" [disabled]="isDeleting">
+              Delete
+            </button>
           </div>
-        </div>
-        
-        @if (editingJob) {
-          <div class="job-edit-card">
-            <h3>Edit Job</h3>
-            <div class="form-group mb-3">
-              <label>Title</label>
-              <input type="text" class="form-control" [(ngModel)]="editingJob.title" />
-            </div>
-            <div class="form-group mb-3">
-              <label>Location</label>
-              <input type="text" class="form-control" [(ngModel)]="editingJob.location" />
-            </div>
-            <div class="form-group mb-3">
-              <label>Type</label>
-              <input type="text" class="form-control" [(ngModel)]="editingJob.type" />
-            </div>
-            <div class="form-group mb-3">
-              <label>Salary</label>
-              <input type="text" class="form-control" [(ngModel)]="editingJob.salary" />
-            </div>
-            <div class="form-group mb-3">
-              <label>Description</label>
-              <textarea class="form-control" rows="4" [(ngModel)]="editingJob.description"></textarea>
-            </div>
-            <div class="d-flex gap-2">
-              <button class="btn btn-success" (click)="saveEdit()" [disabled]="isSaving">
-                {{ isSaving ? 'Saving...' : 'Save' }}
-              </button>
-              <button class="btn btn-secondary" (click)="cancelEdit()" [disabled]="isSaving">Cancel</button>
-            </div>
-          </div>
-        }
       } @else {
         <div class="empty-details text-center py-5">
           <p class="text-muted">Select a job to view details</p>
@@ -114,6 +79,66 @@
     </div>
   </div>
 </div>
+
+<!-- Edit Job Modal -->
+@if (showEditModal && editingJob) {
+  <div class="modal-overlay">
+    <div class="modal-content modal-lg">
+      <h2>Edit Job</h2>
+      
+      <div class="form-group mb-3">
+        <label for="edit-title">Job Title</label>
+        <input type="text" id="edit-title" class="form-control" [(ngModel)]="editingJob.title" />
+      </div>
+
+      <div class="form-group mb-3">
+        <label for="edit-location">Location</label>
+        <input type="text" id="edit-location" class="form-control" [(ngModel)]="editingJob.location" />
+      </div>
+
+      <div class="form-group mb-3">
+        <label for="edit-type">Type</label>
+        <select id="edit-type" class="form-control" [(ngModel)]="editingJob.type">
+          <option value="">Select Job Type</option>
+          <option value="Part Time">Part Time</option>
+          <option value="Full Time">Full Time</option>
+          <option value="Remote">Remote</option>
+        </select>
+      </div>
+
+      <div class="form-group mb-3">
+        <label for="edit-salary-min">Salary Range</label>
+        <div style="display: flex; gap: 10px; align-items: center;">
+          <select id="edit-salary-min" class="form-control" [(ngModel)]="editSalaryMin">
+            <option value="">Min Salary</option>
+            @for (option of salaryOptions; track option.value) {
+              <option [value]="option.value">{{ option.label }}</option>
+            }
+          </select>
+          <span>-</span>
+          <select id="edit-salary-max" class="form-control" [(ngModel)]="editSalaryMax">
+            <option value="">Max Salary</option>
+            @for (option of salaryOptions; track option.value) {
+              <option [value]="option.value">{{ option.label }}</option>
+            }
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group mb-3">
+        <label for="edit-description">Description</label>
+        <textarea id="edit-description" class="form-control" rows="5" [(ngModel)]="editingJob.description"></textarea>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="cancelEdit()" [disabled]="isSaving">Cancel</button>
+        <button class="btn btn-success" (click)="saveEdit()" [disabled]="isSaving">
+          {{ isSaving ? 'Saving...' : 'Save Changes' }}
+        </button>
+      </div>
+    </div>
+  </div>
+}
 
 <!-- Delete Confirmation Modal -->
 @if (showDeleteConfirmModal) {

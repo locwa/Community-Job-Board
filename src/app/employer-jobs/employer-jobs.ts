@@ -23,6 +23,23 @@ export class EmployerJobs implements OnInit {
   isSaving = false;
   showDeleteConfirmModal = false;
   jobToDelete: string | null = null;
+  showEditModal = false;
+  editSalaryMin: string = "";
+  editSalaryMax: string = "";
+
+  salaryOptions = [
+    { value: 10000, label: "₱10,000" },
+    { value: 20000, label: "₱20,000" },
+    { value: 30000, label: "₱30,000" },
+    { value: 40000, label: "₱40,000" },
+    { value: 50000, label: "₱50,000" },
+    { value: 75000, label: "₱75,000" },
+    { value: 100000, label: "₱100,000" },
+    { value: 150000, label: "₱150,000" },
+    { value: 200000, label: "₱200,000" },
+    { value: 250000, label: "₱250,000" },
+    { value: 300000, label: "₱300,000+" }
+  ];
 
   async ngOnInit() {
     await this.loadEmployerJobs();
@@ -44,21 +61,49 @@ export class EmployerJobs implements OnInit {
 
   startEdit(job: Job) {
     this.editingJob = { ...job };
+    this.parseSalaryRange(job.salary);
+    this.showEditModal = true;
+  }
+
+  parseSalaryRange(salary: string) {
+    const match = salary.match(/₱([\d,]+)\s*-\s*₱([\d,]+)/);
+    if (match) {
+      this.editSalaryMin = match[1].replace(/,/g, '');
+      this.editSalaryMax = match[2].replace(/,/g, '');
+    }
   }
 
   cancelEdit() {
     this.editingJob = null;
+    this.showEditModal = false;
+    this.editSalaryMin = "";
+    this.editSalaryMax = "";
   }
 
   async saveEdit() {
     if (!this.editingJob || !this.editingJob.id) return;
     
+    if (!this.editingJob.title || !this.editingJob.location || !this.editingJob.type || !this.editingJob.description || !this.editSalaryMin || !this.editSalaryMax) {
+      alert('Please fill in all fields');
+      return;
+    }
+
+    const minNum = parseInt(this.editSalaryMin);
+    const maxNum = parseInt(this.editSalaryMax);
+    if (minNum >= maxNum) {
+      alert('Minimum salary must be less than maximum salary');
+      return;
+    }
+
     this.isSaving = true;
     try {
+      this.editingJob.salary = `₱${minNum.toLocaleString()} - ₱${maxNum.toLocaleString()}`;
       await this.jobService.update(this.editingJob.id, this.editingJob);
       await this.loadEmployerJobs();
       this.editingJob = null;
-      alert('Job updated successfully!');
+      this.showEditModal = false;
+      this.editSalaryMin = "";
+      this.editSalaryMax = "";
     } catch (error) {
       console.error('Error updating job:', error);
       alert('Failed to update job');
