@@ -257,6 +257,9 @@ export class JobsService {
         applicants: arrayUnion(applicant)
       });
       
+      // Auto-save the job when applicant applies
+      await this.saveJob(jobId);
+      
       console.log('Successfully applied to job:', jobId);
       return true;
     } catch (error) {
