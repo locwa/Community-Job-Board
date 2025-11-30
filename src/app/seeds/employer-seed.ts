@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { Auth, createUserWithEmailAndPassword, signOut } from '@angular/fire/auth';
-import { Firestore, doc, setDoc, collection, getDocs, query, where } from '@angular/fire/firestore';
+import { Firestore, doc, setDoc, collection, getDocs, query, where, updateDoc, Timestamp } from '@angular/fire/firestore';
 import { UserProfile } from '../models/user.model';
 
 export const EMPLOYER_SEED_DATA = [
@@ -24,6 +24,7 @@ export class EmployerSeedService {
   private firestore = inject(Firestore);
 
   async initializeEmployers(): Promise<void> {
+    await this.migrateOldJobs();
     try {
       for (const employer of EMPLOYER_SEED_DATA) {
         try {
@@ -67,6 +68,67 @@ export class EmployerSeedService {
       EMPLOYER_SEED_DATA.forEach(emp => console.log(`${emp.company}: ${emp.email}`));
     } catch (error) {
       console.error('Employer initialization error:', error);
+    }
+  }
+
+  private async migrateOldJobs(): Promise<void> {
+    try {
+      const jobsCollection = collection(this.firestore, 'jobs');
+      const snapshot = await getDocs(jobsCollection);
+      
+      let migratedCount = 0;
+      
+      for (const jobDoc of snapshot.docs) {
+        const data = jobDoc.data();
+        const needsUpdate: any = {};
+        
+        // Add missing postedBy field (default to first employer)
+        if (!data['postedBy']) {
+          needsUpdate.postedBy = EMPLOYER_SEED_DATA[0].email;
+          console.log(`[Migration] Added postedBy to job ${jobDoc.id}`);
+        }
+        
+        // Ensure status field exists (default to 'approved' for old jobs)
+        if (!data['status']) {
+          needsUpdate.status = 'approved';
+          console.log(`[Migration] Added status to job ${jobDoc.id}`);
+        }
+        
+        // Ensure company field exists
+        if (!data['company'] && data['company_name']) {
+          needsUpdate.company = data['company_name'];
+          console.log(`[Migration] Added company (from company_name) to job ${jobDoc.id}`);
+        } else if (!data['company']) {
+          needsUpdate.company = 'Unknown Company';
+          console.log(`[Migration] Added default company to job ${jobDoc.id}`);
+        }
+        
+        // Convert postedDate to Timestamp if needed
+        if (data['postedDate'] && !(data['postedDate'] instanceof Timestamp) && !data['postedDate']?.toDate) {
+          if (typeof data['postedDate'] === 'string') {
+            needsUpdate.postedDate = Timestamp.fromDate(new Date(data['postedDate']));
+          } else if (data['postedDate']?.seconds) {
+            // Already in Firestore Timestamp format, but verify structure
+            needsUpdate.postedDate = Timestamp.fromDate(new Date(data['postedDate'].seconds * 1000));
+          }
+          console.log(`[Migration] Converted postedDate to Timestamp for job ${jobDoc.id}`);
+        } else if (!data['postedDate']) {
+          needsUpdate.postedDate = Timestamp.now();
+          console.log(`[Migration] Added default postedDate to job ${jobDoc.id}`);
+        }
+        
+        // Update job if any fields were missing
+        if (Object.keys(needsUpdate).length > 0) {
+          await updateDoc(doc(this.firestore, 'jobs', jobDoc.id), needsUpdate);
+          migratedCount++;
+        }
+      }
+      
+      if (migratedCount > 0) {
+        console.log(`%c✓ Migrated ${migratedCount} jobs to current format`, 'color: green; font-weight: bold;');
+      }
+    } catch (error) {
+      console.error('Job migration error:', error);
     }
   }
 }
