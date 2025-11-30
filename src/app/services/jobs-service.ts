@@ -34,6 +34,7 @@ export class JobsService {
   async loadJobs(): Promise<void> {
     this.loading.set(true);
     try {
+      await this.migrateJobTypes();
       const jobsCollection = collection(this.firestore, 'jobs');
       // Load all jobs (approved or without status field), filter out explicitly rejected jobs
       const snapshot = await getDocs(jobsCollection);
@@ -55,6 +56,41 @@ export class JobsService {
       this.jobs.set([]);
     } finally {
       this.loading.set(false);
+    }
+  }
+
+  private async migrateJobTypes(): Promise<void> {
+    try {
+      const jobsCollection = collection(this.firestore, 'jobs');
+      const snapshot = await getDocs(jobsCollection);
+      
+      let migratedCount = 0;
+      
+      for (const jobDoc of snapshot.docs) {
+        const data = jobDoc.data();
+        const type = data['type'];
+        let newType = type;
+        
+        if (type === 'Full Time') {
+          newType = 'Full-Time';
+        } else if (type === 'Part Time') {
+          newType = 'Part-Time';
+        }
+        
+        if (newType !== type) {
+          await updateDoc(doc(this.firestore, 'jobs', jobDoc.id), {
+            type: newType
+          });
+          console.log(`[Migrate Job Types] Updated "${type}" → "${newType}"`);
+          migratedCount++;
+        }
+      }
+      
+      if (migratedCount > 0) {
+        console.log(`%c✓ Migrated ${migratedCount} jobs to new type format`, 'color: purple; font-weight: bold;');
+      }
+    } catch (error) {
+      console.error('Job type migration error:', error);
     }
   }
 

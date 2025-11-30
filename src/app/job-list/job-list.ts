@@ -26,8 +26,8 @@ export class JobList implements OnInit {
 
   jobTypes = [
     { value: "", label: "All Job Types" },
-    { value: "Full Time", label: "Full Time" },
-    { value: "Part Time", label: "Part Time" },
+    { value: "Full-Time", label: "Full-Time" },
+    { value: "Part-Time", label: "Part-Time" },
     { value: "Remote", label: "Remote" }
   ];
 
