@@ -28,11 +28,7 @@ export class JobsService {
 
   async initializeSampleData(): Promise<void> {
     try {
-      const jobsCollection = collection(this.firestore, 'jobs');
-      const snapshot = await getDocs(jobsCollection);
-      
-      if (snapshot.empty) {
-        const sampleJobs: Job[] = [
+      const sampleJobs: Job[] = [
           { 
             title: 'Frontend Developer', 
             company: 'TechCorp', 
@@ -125,6 +121,10 @@ export class JobsService {
           }
         ];
 
+      const jobsCollection = collection(this.firestore, 'jobs');
+      const snapshot = await getDocs(jobsCollection);
+      
+      if (snapshot.empty) {
         const batch = writeBatch(this.firestore);
         sampleJobs.forEach((job) => {
           const docRef = doc(collection(this.firestore, 'jobs'));
@@ -132,6 +132,8 @@ export class JobsService {
         });
         await batch.commit();
         console.log('Sample job data added to Firestore');
+      } else {
+        console.log('Jobs already exist in Firestore');
       }
     } catch (error) {
       console.error('Error initializing sample data:', error);
