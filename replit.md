@@ -11,6 +11,13 @@ A community job board application built with Angular 20 and Firebase. This app a
 - **Applicant**: Can browse jobs, save jobs for later, and apply to positions
 
 ## Recent Changes
+- **2025-11-30**: Integrated Firestore and added employer accounts
+  - Refactored JobsService to use Firestore instead of in-memory data
+  - Removed hardcoded sample data array - jobs now load from Firestore
+  - Created employer seed service with 10 employer accounts (one per company)
+  - Employer profiles automatically created on app initialization
+  - All jobs now persist in Firestore with status (approved/pending)
+
 - **2025-11-30**: Implemented role-based account system
   - Added three user roles: admin, employer, applicant
   - User profiles stored in Firestore with role information
@@ -65,14 +72,17 @@ src/
 │   │   ├── login.html
 │   │   └── login.css
 │   ├── models/              # TypeScript interfaces
-│   │   └── user.model.ts    # UserProfile and UserRole types
+│   │   ├── user.model.ts    # UserProfile and UserRole types
+│   │   └── job.model.ts     # Job interface
 │   ├── saved-jobs/          # Saved jobs page for applicants
 │   │   ├── saved-jobs.ts
 │   │   ├── saved-jobs.html
 │   │   └── saved-jobs.css
+│   ├── seeds/               # Data seeding for initialization
+│   │   └── employer-seed.ts # Creates initial employer accounts
 │   ├── services/
 │   │   ├── auth.service.ts  # Firebase authentication with role management
-│   │   └── jobs-service.ts  # Job data operations + save/unsave jobs
+│   │   └── jobs-service.ts  # Firestore job operations + save/unsave jobs
 │   ├── app.config.ts        # Application configuration with Firebase
 │   ├── app.routes.ts        # Routing configuration with guards
 │   └── app.ts               # Root component with role-based navigation
@@ -138,10 +148,23 @@ Configured for static site deployment:
 ## Firebase Configuration
 The app uses Firebase for:
 - **Authentication**: User login/signup with email/password
-- **Firestore**: User profiles with roles, saved jobs
+- **Firestore**: User profiles with roles, saved jobs, job listings
 
 Firebase collections:
 - `users`: User profiles with uid, email, role, savedJobs, createdAt
+- `jobs`: Job listings with title, company, location, type, description, salary, status, postedBy, postedDate
+
+Pre-seeded Employer Accounts (for testing):
+- TechCorp: employer-techcorp@example.com
+- DevSolutions: employer-devsolutions@example.com
+- Designify: employer-designify@example.com
+- SysCare: employer-syscare@example.com
+- BuildRight: employer-buildright@example.com
+- InsightWorks: employer-insightworks@example.com
+- QualityPlus: employer-qualityplus@example.com
+- AppWave: employer-appwave@example.com
+- NetSecure: employer-netsecure@example.com
+- CopyCraft: employer-copycraft@example.com
 
 Firebase configuration is stored in `src/environments/environment.ts` and includes:
 - Project: community-appdev
