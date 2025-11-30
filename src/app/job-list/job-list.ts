@@ -64,4 +64,23 @@ export class JobList implements OnInit {
   canSaveJobs(): boolean {
     return this.authService.isLoggedIn() && this.authService.isApplicant();
   }
+
+  async applyToJob(jobId: string | undefined, event: Event) {
+    event.stopPropagation();
+    if (!jobId || !this.authService.isLoggedIn()) {
+      alert('Please log in to apply');
+      return;
+    }
+
+    const success = await this.jobService.applyJob(jobId);
+    if (success) {
+      alert('Successfully applied to the job!');
+      // Refresh the job details to show the application
+      if (this.jobDetails?.id === jobId) {
+        this.viewJob(jobId);
+      }
+    } else {
+      alert('Failed to apply. You may have already applied to this job.');
+    }
+  }
 }

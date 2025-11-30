@@ -51,7 +51,7 @@
           </div>
           <p class="mt-4">{{ jobDetails.description }}</p>
           <div class="d-flex gap-2 mt-4">
-            <button class="btn btn-primary">Apply</button>
+            <button class="btn btn-primary" (click)="applyToJob(jobDetails.id, $event)">Apply</button>
             @if (canSaveJobs()) {
               <button 
                 class="btn"

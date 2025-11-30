@@ -225,7 +225,11 @@ export class JobsService {
         return {
           id: doc.id,
           ...data,
-          postedDate: data['postedDate']?.toDate ? data['postedDate'].toDate() : data['postedDate']
+          postedDate: data['postedDate']?.toDate ? data['postedDate'].toDate() : data['postedDate'],
+          applicants: (data['applicants'] || []).map((app: any) => ({
+            ...app,
+            appliedAt: app.appliedAt?.toDate ? app.appliedAt.toDate() : app.appliedAt
+          }))
         } as Job;
       });
       
@@ -234,6 +238,30 @@ export class JobsService {
     } catch (error) {
       console.error('Error loading employer jobs:', error);
       return [];
+    }
+  }
+
+  async applyJob(jobId: string): Promise<boolean> {
+    const user = this.authService.currentUser();
+    if (!user) return false;
+
+    try {
+      const jobDocRef = doc(this.firestore, 'jobs', jobId);
+      const applicant = {
+        userId: user.uid,
+        email: user.email,
+        appliedAt: Timestamp.now()
+      };
+
+      await updateDoc(jobDocRef, {
+        applicants: arrayUnion(applicant)
+      });
+      
+      console.log('Successfully applied to job:', jobId);
+      return true;
+    } catch (error) {
+      console.error('Error applying to job:', error);
+      return false;
     }
   }
 }

@@ -1,3 +1,10 @@
+export interface Applicant {
+  userId: string;
+  email: string;
+  appliedAt: Date;
+  name?: string;
+}
+
 export interface Job {
   id?: string;
   title: string;
@@ -9,4 +16,5 @@ export interface Job {
   postedBy?: string;
   postedDate?: Date;
   status?: 'approved' | 'pending' | 'rejected';
+  applicants?: Applicant[];
 }
