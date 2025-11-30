@@ -199,4 +199,22 @@ export class JobsService {
       await this.saveJob(jobId);
     }
   }
+
+  async getEmployerJobs(employerId: string): Promise<Job[]> {
+    try {
+      const jobsCollection = collection(this.firestore, 'jobs');
+      const q = query(jobsCollection, where('postedBy', '==', employerId));
+      const snapshot = await getDocs(q);
+      
+      const employerJobs: Job[] = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data() as Omit<Job, 'id'>
+      }));
+      
+      return employerJobs;
+    } catch (error) {
+      console.error('Error loading employer jobs:', error);
+      return [];
+    }
+  }
 }

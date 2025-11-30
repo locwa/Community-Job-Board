@@ -15,6 +15,7 @@
         
         @if (authService.isEmployer() || authService.isAdmin()) {
           <a class="nav-link text-white" routerLink="/create-job">Post Job</a>
+          <a class="nav-link text-white" routerLink="/employer-jobs">My Jobs</a>
         }
         
         @if (authService.isAdmin()) {
