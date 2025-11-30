@@ -35,17 +35,19 @@ export class JobsService {
     this.loading.set(true);
     try {
       const jobsCollection = collection(this.firestore, 'jobs');
-      const q = query(jobsCollection, where('status', '==', 'approved'));
-      const snapshot = await getDocs(q);
+      // Load all jobs (approved or without status field), filter out explicitly rejected jobs
+      const snapshot = await getDocs(jobsCollection);
       
-      const loadedJobs: Job[] = snapshot.docs.map(doc => {
-        const data = doc.data();
-        return {
-          id: doc.id,
-          ...data,
-          postedDate: data['postedDate']?.toDate ? data['postedDate'].toDate() : data['postedDate']
-        } as Job;
-      });
+      const loadedJobs: Job[] = snapshot.docs
+        .map(doc => {
+          const data = doc.data();
+          return {
+            id: doc.id,
+            ...data,
+            postedDate: data['postedDate']?.toDate ? data['postedDate'].toDate() : data['postedDate']
+          } as Job;
+        })
+        .filter(job => job.status !== 'rejected'); // Hide only rejected jobs
       
       this.jobs.set(loadedJobs);
     } catch (error) {
