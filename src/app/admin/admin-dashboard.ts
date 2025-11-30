@@ -1,7 +1,8 @@
 import { Component, inject, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { JobsService, Job } from '../services/jobs-service';
+import { JobsService } from '../services/jobs-service';
+import { Job } from '../models/job.model';
 
 @Component({
   selector: 'app-admin-dashboard',
@@ -38,25 +39,29 @@ export class AdminDashboard implements OnInit {
     this.actionMessage.set(null);
   }
 
-  approveJob(job: Job) {
-    this.showMessage('success', `Job "${job.title}" has been approved.`);
-    this.closeModal();
+  async approveJob(job: Job) {
+    if (job.id) {
+      await this.jobsService.update(job.id, { status: 'approved' });
+      this.loadJobs();
+      this.showMessage('success', `Job "${job.title}" has been approved.`);
+      this.closeModal();
+    }
   }
 
-  rejectJob(job: Job) {
+  async rejectJob(job: Job) {
     const confirmed = confirm(`Are you sure you want to reject "${job.title}"?`);
-    if (confirmed) {
-      this.jobsService.delete(job.id);
+    if (confirmed && job.id) {
+      await this.jobsService.delete(job.id);
       this.loadJobs();
       this.showMessage('success', `Job "${job.title}" has been removed.`);
       this.closeModal();
     }
   }
 
-  deleteJob(job: Job) {
+  async deleteJob(job: Job) {
     const confirmed = confirm(`Are you sure you want to delete "${job.title}"? This action cannot be undone.`);
-    if (confirmed) {
-      this.jobsService.delete(job.id);
+    if (confirmed && job.id) {
+      await this.jobsService.delete(job.id);
       this.loadJobs();
       this.showMessage('success', `Job "${job.title}" has been deleted.`);
       this.closeModal();

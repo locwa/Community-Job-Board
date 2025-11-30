@@ -1,5 +1,6 @@
-import { Component, inject } from '@angular/core';
-import { JobsService, Job } from '../services/jobs-service';
+import { Component, inject, OnInit } from '@angular/core';
+import { JobsService } from '../services/jobs-service';
+import { Job } from '../models/job.model';
 import { AuthService } from '../services/auth.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -10,7 +11,7 @@ import { FormsModule } from '@angular/forms';
   templateUrl: './job-list.html',
   styleUrl: './job-list.css',
 })
-export class JobList {
+export class JobList implements OnInit {
   private jobService = inject(JobsService);
   authService = inject(AuthService);
 
@@ -27,7 +28,8 @@ export class JobList {
     type: ""
   };
 
-  ngOnInit() {
+  async ngOnInit() {
+    await this.jobService.loadJobs();
     this.jobs = this.jobService.list();
   }
 
@@ -41,20 +43,22 @@ export class JobList {
     this.jobs = this.jobService.list(this.filters);
   }
 
-  viewJob(id: number) {
-    this.jobDetails = this.jobs.find((job: Job) => job.id === id) || null;
+  viewJob(id: string | undefined) {
+    if (!id) return;
+    this.jobDetails = this.jobService.getById(id) || null;
   }
 
-  isJobSaved(jobId: number): boolean {
-    return this.jobService.isJobSaved(jobId.toString());
+  isJobSaved(jobId: string | undefined): boolean {
+    if (!jobId) return false;
+    return this.jobService.isJobSaved(jobId);
   }
 
-  async toggleSaveJob(jobId: number, event: Event) {
+  async toggleSaveJob(jobId: string | undefined, event: Event) {
     event.stopPropagation();
-    if (!this.authService.isLoggedIn()) {
+    if (!jobId || !this.authService.isLoggedIn()) {
       return;
     }
-    await this.jobService.toggleSaveJob(jobId.toString());
+    await this.jobService.toggleSaveJob(jobId);
   }
 
   canSaveJobs(): boolean {

@@ -2,7 +2,8 @@ import { Component, inject, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { AuthService } from '../services/auth.service';
-import { JobsService, Job } from '../services/jobs-service';
+import { JobsService } from '../services/jobs-service';
+import { Job } from '../models/job.model';
 
 @Component({
   selector: 'app-saved-jobs',
@@ -26,13 +27,15 @@ export class SavedJobs implements OnInit {
     this.loading.set(true);
     const savedJobIds = this.authService.userProfile()?.savedJobs || [];
     const allJobs = this.jobsService.list();
-    const saved = allJobs.filter(job => savedJobIds.includes(job.id.toString()));
+    const saved = allJobs.filter(job => job.id && savedJobIds.includes(job.id));
     this.savedJobs.set(saved);
     this.loading.set(false);
   }
 
-  async removeSavedJob(jobId: number) {
-    await this.jobsService.unsaveJob(jobId.toString());
-    this.loadSavedJobs();
+  async removeSavedJob(jobId: string | undefined) {
+    if (jobId) {
+      await this.jobsService.unsaveJob(jobId);
+      this.loadSavedJobs();
+    }
   }
 }

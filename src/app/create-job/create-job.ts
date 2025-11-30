@@ -1,7 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import { JobsService } from '../services/jobs-service';
 import { Router } from '@angular/router';
+import { AuthService } from '../services/auth.service';
 
 @Component({
   selector: 'app-create-job',
@@ -12,28 +13,41 @@ import { Router } from '@angular/router';
   styleUrl: './create-job.css',
 })
 export class CreateJob {
+  private jobService = inject(JobsService);
+  private router = inject(Router);
+  private authService = inject(AuthService);
+
   title: string = "";
   company: string = "";
-  location: string= "";
+  location: string = "";
   type: string = "";
   description: string = "";
   salary: string = "";
+  error: string = "";
 
-  jobDetails:any = []
+  async addJob(){
+    this.error = "";
+    
+    if (!this.title || !this.company || !this.location || !this.type || !this.description || !this.salary) {
+      this.error = "Please fill in all fields";
+      return;
+    }
 
-  constructor(private jobService : JobsService, private router : Router) {
-  }
-
-  addJob(){
-    this.jobDetails = {
+    const newJob = {
       title: this.title,
       company: this.company,
       location: this.location,
       type: this.type,
       description: this.description,
       salary: this.salary,
+      postedBy: this.authService.currentUser()?.uid
+    };
+
+    const created = await this.jobService.create(newJob);
+    if (created) {
+      this.router.navigate(['/']);
+    } else {
+      this.error = "Failed to create job";
     }
-    this.jobService.create(this.jobDetails)
-    this.router.navigate(['/'])
   }
 }
