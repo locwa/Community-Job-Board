@@ -25,6 +25,7 @@ export class EmployerSeedService {
 
   async initializeEmployers(): Promise<void> {
     await this.migrateOldJobs();
+    await this.fixPostedByEmails();
     try {
       for (const employer of EMPLOYER_SEED_DATA) {
         try {
@@ -68,6 +69,44 @@ export class EmployerSeedService {
       EMPLOYER_SEED_DATA.forEach(emp => console.log(`${emp.company}: ${emp.email}`));
     } catch (error) {
       console.error('Employer initialization error:', error);
+    }
+  }
+
+  private async fixPostedByEmails(): Promise<void> {
+    try {
+      const jobsCollection = collection(this.firestore, 'jobs');
+      const snapshot = await getDocs(jobsCollection);
+      
+      let fixedCount = 0;
+      
+      for (const jobDoc of snapshot.docs) {
+        const data = jobDoc.data();
+        
+        // Check if postedBy is an email instead of a UID
+        if (data['postedBy'] && data['postedBy'].includes('@')) {
+          const email = data['postedBy'];
+          
+          // Find the employer with this email
+          const usersCollection = collection(this.firestore, 'users');
+          const userQuery = query(usersCollection, where('email', '==', email));
+          const userSnapshot = await getDocs(userQuery);
+          
+          if (userSnapshot.docs.length > 0) {
+            const userId = userSnapshot.docs[0].id;
+            await updateDoc(doc(this.firestore, 'jobs', jobDoc.id), {
+              postedBy: userId
+            });
+            console.log(`[Fix postedBy] Updated job ${jobDoc.id} postedBy from email to UID`);
+            fixedCount++;
+          }
+        }
+      }
+      
+      if (fixedCount > 0) {
+        console.log(`%c✓ Fixed ${fixedCount} jobs with email postedBy`, 'color: blue; font-weight: bold;');
+      }
+    } catch (error) {
+      console.error('Fix postedBy error:', error);
     }
   }
 
