@@ -154,24 +154,38 @@ Firebase collections:
 - `users`: User profiles with uid, email, role, savedJobs, createdAt
 - `jobs`: Job listings with title, company, location, type, description, salary, status, postedBy, postedDate
 
-Pre-seeded Employer Accounts (for testing):
-- TechCorp: employer-techcorp@example.com
-- DevSolutions: employer-devsolutions@example.com
-- Designify: employer-designify@example.com
-- SysCare: employer-syscare@example.com
-- BuildRight: employer-buildright@example.com
-- InsightWorks: employer-insightworks@example.com
-- QualityPlus: employer-qualityplus@example.com
-- AppWave: employer-appwave@example.com
-- NetSecure: employer-netsecure@example.com
-- CopyCraft: employer-copycraft@example.com
+Test Accounts:
+To test the app, simply register new accounts using the Sign Up page:
+- As a **Job Seeker**: Register and select "Job Seeker" role to browse, save, and apply to jobs
+- As an **Employer**: Register and select "Employer" role to post and manage jobs
+- As an **Admin**: Contact developer to grant admin role (set role to 'admin' in Firestore users collection)
 
 Firebase configuration is stored in `src/environments/environment.ts` and includes:
 - Project: community-appdev
 - API Key and credentials for Firebase services
+
+## How to Use
+
+### For Job Seekers:
+1. Click "Sign Up" on the login page
+2. Enter email and password
+3. Select "Job Seeker" role
+4. Browse available jobs, save favorites, or apply
+
+### For Employers:
+1. Click "Sign Up" on the login page
+2. Enter email and password
+3. Select "Employer" role
+4. Click "Post a Job" to create new job listings
+5. Jobs start in "pending" status until approved by admin
+
+### For Admin:
+- Access admin dashboard to approve/reject/delete job listings
+- To become admin: set `role: 'admin'` in Firestore users collection
 
 ## Notes
 - Analytics disabled in Angular CLI configuration
 - Dev server configured with `allowedHosts: true` to work with Replit's proxy environment
 - Bootstrap CSS included globally via angular.json styles configuration
 - Route guards wait for Firebase auth state to prevent redirect issues on page refresh
+- All data persists in Firestore database

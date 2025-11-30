@@ -3,7 +3,6 @@ import { RouterOutlet, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AuthService } from './services/auth.service';
 import { JobsService } from './services/jobs-service';
-import { EmployerSeedService } from './seeds/employer-seed';
 
 @Component({
   selector: 'app-root',
@@ -15,10 +14,8 @@ export class App implements OnInit {
   protected readonly title = signal('community-job-board');
   protected authService = inject(AuthService);
   private jobsService = inject(JobsService);
-  private employerSeedService = inject(EmployerSeedService);
 
   async ngOnInit() {
-    await this.employerSeedService.initializeEmployers();
     await this.jobsService.initializeSampleData();
     await this.jobsService.loadJobs();
   }

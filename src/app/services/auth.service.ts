@@ -59,12 +59,15 @@ export class AuthService {
     
     try {
       const credential = await signInWithEmailAndPassword(this.auth, email, password);
+      await new Promise(resolve => setTimeout(resolve, 500)); // Wait for auth state to update
       await this.loadUserProfile(credential.user.uid);
       this.clearError();
       this.router.navigate(['/']);
       return true;
     } catch (error: any) {
-      this.authError.set(this.getErrorMessage(error.code));
+      console.error('Login error full:', error);
+      const errorMsg = this.getErrorMessage(error.code || error.message);
+      this.authError.set(errorMsg);
       return false;
     } finally {
       this.loading.set(false);
