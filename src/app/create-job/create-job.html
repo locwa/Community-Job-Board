@@ -1,5 +1,9 @@
 <h1 class="fw-bold">Post a Job</h1>
 <div class="container-fluid">
+  @if (error) {
+    <div class="alert alert-danger">{{ error }}</div>
+  }
+  
   <div class="row">
     <label for="title">Job Title</label>
     <input type="text" name="job-title" id="" [(ngModel)]="title">
@@ -21,7 +25,48 @@
     <textarea rows="5" class="form-control" name="job-description" [(ngModel)]="description"></textarea>
    </div>
   <div class="row">
-    <button (click)="addJob()">Create Job</button>
+    <button (click)="openConfirmModal()">Create Job</button>
   </div>
 </div>
+
+<!-- Confirmation Modal -->
+@if (showConfirmModal) {
+  <div class="modal-overlay">
+    <div class="modal-content">
+      <h2>Confirm Job Posting</h2>
+      <div class="modal-body">
+        <div class="detail-row">
+          <span class="label">Job Title:</span>
+          <span class="value">{{ title }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="label">Company:</span>
+          <span class="value">{{ company }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="label">Location:</span>
+          <span class="value">{{ location }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="label">Type:</span>
+          <span class="value">{{ type }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="label">Salary:</span>
+          <span class="value">{{ salary }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="label">Description:</span>
+          <span class="value description-text">{{ description }}</span>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancel" (click)="closeConfirmModal()" [disabled]="isSubmitting">Cancel</button>
+        <button class="btn-confirm" (click)="confirmCreateJob()" [disabled]="isSubmitting">
+          {{ isSubmitting ? 'Creating...' : 'Confirm' }}
+        </button>
+      </div>
+    </div>
+  </div>
+}
 

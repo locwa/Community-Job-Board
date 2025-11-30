@@ -1,5 +1,6 @@
 import { Component, inject } from '@angular/core';
 import {FormsModule} from '@angular/forms';
+import { CommonModule } from '@angular/common';
 import { JobsService } from '../services/jobs-service';
 import { Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
@@ -7,7 +8,8 @@ import { AuthService } from '../services/auth.service';
 @Component({
   selector: 'app-create-job',
   imports: [
-    FormsModule
+    FormsModule,
+    CommonModule
   ],
   templateUrl: './create-job.html',
   styleUrl: './create-job.css',
@@ -24,6 +26,8 @@ export class CreateJob {
   description: string = "";
   salary: string = "";
   error: string = "";
+  showConfirmModal = false;
+  isSubmitting = false;
 
   constructor() {
     const profile = this.authService.userProfile();
@@ -32,7 +36,7 @@ export class CreateJob {
     }
   }
 
-  async addJob(){
+  openConfirmModal() {
     this.error = "";
     
     if (!this.title || !this.company || !this.location || !this.type || !this.description || !this.salary) {
@@ -40,9 +44,21 @@ export class CreateJob {
       return;
     }
 
+    this.showConfirmModal = true;
+  }
+
+  closeConfirmModal() {
+    this.showConfirmModal = false;
+  }
+
+  async confirmCreateJob(){
+    this.isSubmitting = true;
+    this.error = "";
+    
     const userId = this.authService.currentUser()?.uid;
     if (!userId) {
       this.error = "User not authenticated";
+      this.isSubmitting = false;
       return;
     }
 
@@ -63,10 +79,12 @@ export class CreateJob {
         this.router.navigate(['/employer-jobs']);
       } else {
         this.error = "Failed to create job";
+        this.isSubmitting = false;
       }
     } catch (err) {
       console.error("Error creating job:", err);
       this.error = "Error creating job: " + (err instanceof Error ? err.message : String(err));
+      this.isSubmitting = false;
     }
   }
 }
