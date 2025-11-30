@@ -6,6 +6,13 @@ A community job board application built with Angular 20 and Firebase. This app a
 **Current State:** Configured for Replit environment and ready to run. The Angular dev server is set up on port 5000 with proper host configuration for Replit's proxy environment.
 
 ## Recent Changes
+- **2025-11-30**: Added Login/Registration functionality
+  - Created AuthService for Firebase authentication (login, register, logout)
+  - Built Login component with email/password form and mode toggle
+  - Added /login route and updated navigation with Login/Logout buttons
+  - User email displays in navbar when logged in
+  - Proper error handling with user-friendly messages
+
 - **2025-11-30**: Initial setup for Replit environment
   - Installed all npm dependencies
   - Configured Angular dev server for Replit (host: 0.0.0.0, port: 5000, allowedHosts: true)
@@ -32,7 +39,12 @@ src/
 │   ├── create-job/          # Component for creating new job postings
 │   ├── job-application-modal/ # Modal for applying to jobs
 │   ├── job-list/            # Component for displaying job listings
+│   ├── login/               # Login/Registration component
+│   │   ├── login.ts
+│   │   ├── login.html
+│   │   └── login.css
 │   ├── services/
+│   │   ├── auth.service.ts  # Firebase authentication service
 │   │   └── jobs-service.ts  # Service for job data operations
 │   ├── app.config.ts        # Application configuration with Firebase
 │   ├── app.routes.ts        # Routing configuration
@@ -52,7 +64,9 @@ package.json                 # Dependencies and scripts
 1. **Job List Component**: Displays available job postings
 2. **Create Job Component**: Form for creating new job listings
 3. **Job Application Modal**: Modal dialog for applying to jobs
-4. **Jobs Service**: Handles all job-related data operations with Firebase
+4. **Login Component**: Handles user login and registration
+5. **Auth Service**: Firebase authentication (login, register, logout, state management)
+6. **Jobs Service**: Handles all job-related data operations (currently using sample data)
 
 ### Dependencies
 - Angular Core & Platform Browser
