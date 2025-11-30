@@ -4,6 +4,7 @@ import { Job } from '../models/job.model';
 import { AuthService } from '../services/auth.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-job-list',
@@ -13,6 +14,7 @@ import { FormsModule } from '@angular/forms';
 })
 export class JobList implements OnInit {
   private jobService = inject(JobsService);
+  private router = inject(Router);
   authService = inject(AuthService);
 
   jobs: Job[] = [];
@@ -67,8 +69,10 @@ export class JobList implements OnInit {
 
   async applyToJob(jobId: string | undefined, event: Event) {
     event.stopPropagation();
-    if (!jobId || !this.authService.isLoggedIn()) {
-      alert('Please log in to apply');
+    if (!jobId) return;
+
+    if (!this.authService.isLoggedIn()) {
+      this.router.navigate(['/login']);
       return;
     }
 
