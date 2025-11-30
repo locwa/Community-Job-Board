@@ -21,6 +21,8 @@ export class EmployerJobs implements OnInit {
   editingJob: Job | null = null;
   isDeleting = false;
   isSaving = false;
+  showDeleteConfirmModal = false;
+  jobToDelete: string | null = null;
 
   async ngOnInit() {
     await this.loadEmployerJobs();
@@ -65,20 +67,28 @@ export class EmployerJobs implements OnInit {
     }
   }
 
-  async deleteJob(jobId: string | undefined) {
+  openDeleteConfirm(jobId: string | undefined) {
     if (!jobId) return;
-    
-    if (!confirm('Are you sure you want to delete this job?')) {
-      return;
-    }
+    this.jobToDelete = jobId;
+    this.showDeleteConfirmModal = true;
+  }
+
+  closeDeleteConfirm() {
+    this.showDeleteConfirmModal = false;
+    this.jobToDelete = null;
+  }
+
+  async confirmDelete() {
+    if (!this.jobToDelete) return;
     
     this.isDeleting = true;
     try {
-      await this.jobService.delete(jobId);
+      await this.jobService.delete(this.jobToDelete);
       await this.loadEmployerJobs();
       this.selectedJob = null;
       this.editingJob = null;
-      alert('Job deleted successfully!');
+      this.showDeleteConfirmModal = false;
+      this.jobToDelete = null;
     } catch (error) {
       console.error('Error deleting job:', error);
       alert('Failed to delete job');
