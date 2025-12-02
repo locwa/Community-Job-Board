@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { JobsService } from '../services/jobs-service';
 import { AuthService } from '../services/auth.service';
 import { Job, Applicant } from '../models/job.model';
+import { UserProfile } from '../models/user.model';
 
 @Component({
   selector: 'app-employer-jobs',
@@ -20,6 +21,7 @@ export class EmployerJobs implements OnInit {
   loading = false;
   selectedJob: Job | null = null;
   selectedApplicant: Applicant | null = null;
+  selectedApplicantProfile: UserProfile | null = null;
   editingJob: Job | null = null;
   isDeleting = false;
   isSaving = false;
@@ -109,12 +111,16 @@ export class EmployerJobs implements OnInit {
     this.selectedApplicant = null;
   }
 
-  openApplicantModal(applicant: Applicant) {
+  async openApplicantModal(applicant: Applicant) {
     this.selectedApplicant = applicant;
+    if (applicant.userId) {
+      this.selectedApplicantProfile = await this.authService.getUserProfile(applicant.userId);
+    }
   }
 
   closeApplicantModal() {
     this.selectedApplicant = null;
+    this.selectedApplicantProfile = null;
   }
 
   startEdit(job: Job) {

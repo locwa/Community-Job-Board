@@ -53,6 +53,21 @@ export class AuthService {
     }
   }
 
+  async getUserProfile(uid: string): Promise<UserProfile | null> {
+    try {
+      const userDocRef = doc(this.firestore, 'users', uid);
+      const userDoc = await getDoc(userDocRef);
+      
+      if (userDoc.exists()) {
+        return userDoc.data() as UserProfile;
+      }
+      return null;
+    } catch (error) {
+      console.error('Error getting user profile:', error);
+      return null;
+    }
+  }
+
   async login(email: string, password: string): Promise<boolean> {
     this.loading.set(true);
     this.authError.set(null);
