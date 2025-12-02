@@ -16,6 +16,7 @@ export class EmployerJobs implements OnInit {
   private authService = inject(AuthService);
 
   jobs: Job[] = [];
+  allJobs: Job[] = [];
   loading = false;
   selectedJob: Job | null = null;
   selectedApplicant: Applicant | null = null;
@@ -27,6 +28,7 @@ export class EmployerJobs implements OnInit {
   showEditModal = false;
   editSalaryMin: string = "";
   editSalaryMax: string = "";
+  sortBy: string = "date-desc";
 
   salaryOptions = [
     { value: 10000, label: "₱10,000" },
@@ -50,9 +52,55 @@ export class EmployerJobs implements OnInit {
     this.loading = true;
     const userId = this.authService.currentUser()?.uid;
     if (userId) {
-      this.jobs = await this.jobService.getEmployerJobs(userId);
+      this.allJobs = await this.jobService.getEmployerJobs(userId);
+      this.applySorting();
     }
     this.loading = false;
+  }
+
+  applySorting() {
+    let sorted = [...this.allJobs];
+
+    switch (this.sortBy) {
+      case 'date-desc':
+        sorted.sort((a, b) => {
+          const dateA = a.postedDate ? new Date(a.postedDate).getTime() : 0;
+          const dateB = b.postedDate ? new Date(b.postedDate).getTime() : 0;
+          return dateB - dateA;
+        });
+        break;
+      case 'date-asc':
+        sorted.sort((a, b) => {
+          const dateA = a.postedDate ? new Date(a.postedDate).getTime() : 0;
+          const dateB = b.postedDate ? new Date(b.postedDate).getTime() : 0;
+          return dateA - dateB;
+        });
+        break;
+      case 'title-asc':
+        sorted.sort((a, b) => a.title.localeCompare(b.title));
+        break;
+      case 'title-desc':
+        sorted.sort((a, b) => b.title.localeCompare(a.title));
+        break;
+      case 'status-asc':
+        sorted.sort((a, b) => (a.status || '').localeCompare(b.status || ''));
+        break;
+      case 'status-desc':
+        sorted.sort((a, b) => (b.status || '').localeCompare(a.status || ''));
+        break;
+      case 'applicants-desc':
+        sorted.sort((a, b) => (b.applicants?.length || 0) - (a.applicants?.length || 0));
+        break;
+      case 'applicants-asc':
+        sorted.sort((a, b) => (a.applicants?.length || 0) - (b.applicants?.length || 0));
+        break;
+    }
+
+    this.jobs = sorted;
+  }
+
+  onSortChange() {
+    this.applySorting();
   }
 
   viewJob(job: Job) {

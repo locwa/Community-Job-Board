@@ -7,6 +7,19 @@
       } @else if (jobs.length === 0) {
         <p class="text-muted">You haven't posted any jobs yet.</p>
       } @else {
+        <div class="mb-3">
+          <label class="form-label fw-bold">Sort By:</label>
+          <select class="form-select" [(ngModel)]="sortBy" (change)="onSortChange()">
+            <option value="date-desc">Newest First</option>
+            <option value="date-asc">Oldest First</option>
+            <option value="title-asc">Title (A-Z)</option>
+            <option value="title-desc">Title (Z-A)</option>
+            <option value="status-asc">Status (A-Z)</option>
+            <option value="status-desc">Status (Z-A)</option>
+            <option value="applicants-desc">Most Applicants</option>
+            <option value="applicants-asc">Least Applicants</option>
+          </select>
+        </div>
         <div class="job-list">
           @for (job of jobs; track job.id) {
             <div class="job-item" [class.active]="selectedJob?.id === job.id" (click)="viewJob(job)">
@@ -143,6 +156,17 @@
           <label class="fw-bold">Job:</label>
           <p class="mb-0">{{ selectedJob.title }} at {{ selectedJob.company }}</p>
         </div>
+        @if (selectedApplicant.responses && selectedApplicant.responses.length > 0) {
+          <div class="mb-3">
+            <label class="fw-bold">Application Responses:</label>
+            @for (response of selectedApplicant.responses; track $index) {
+              <div class="response-item mb-3 p-3">
+                <p class="fw-bold mb-1 text-primary">{{ response.question }}</p>
+                <p class="mb-0">{{ response.answer }}</p>
+              </div>
+            }
+          </div>
+        }
         <div class="mb-3">
           <label class="fw-bold">Status:</label>
           <p class="mb-0">

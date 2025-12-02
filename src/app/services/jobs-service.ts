@@ -123,6 +123,31 @@ export class JobsService {
     return this.jobs().find(j => j.id === id);
   }
 
+  async getAllJobs(): Promise<Job[]> {
+    try {
+      const jobsCollection = collection(this.firestore, 'jobs');
+      const snapshot = await getDocs(jobsCollection);
+
+      const allJobs: Job[] = snapshot.docs.map(doc => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          ...data,
+          postedDate: data['postedDate']?.toDate ? data['postedDate'].toDate() : data['postedDate'],
+          applicants: (data['applicants'] || []).map((app: any) => ({
+            ...app,
+            appliedAt: app.appliedAt?.toDate ? app.appliedAt.toDate() : app.appliedAt
+          }))
+        } as Job;
+      });
+
+      return allJobs;
+    } catch (error) {
+      console.error('Error loading all jobs:', error);
+      return [];
+    }
+  }
+
   async create(job: Omit<Job, 'id'>): Promise<Job | null> {
     try {
       const jobsCollection = collection(this.firestore, 'jobs');
@@ -277,26 +302,41 @@ export class JobsService {
     }
   }
 
-  async applyJob(jobId: string): Promise<boolean> {
+  async applyJob(jobId: string, responses?: { question: string; answer: string }[]): Promise<boolean> {
     const user = this.authService.currentUser();
     if (!user) return false;
 
     try {
       const jobDocRef = doc(this.firestore, 'jobs', jobId);
+      const jobSnapshot = await getDoc(jobDocRef);
+
+      if (!jobSnapshot.exists()) {
+        console.error('Job not found:', jobId);
+        return false;
+      }
+
+      const existingApplicants = (jobSnapshot.data()['applicants'] || []) as any[];
+      const alreadyApplied = existingApplicants.some(app => app.userId === user.uid);
+
+      if (alreadyApplied) {
+        console.warn('User has already applied to this job');
+        return false;
+      }
+
       const applicant = {
         userId: user.uid,
         email: user.email,
         appliedAt: Timestamp.now(),
-        status: 'pending'
+        status: 'pending',
+        responses: responses || []
       };
 
       await updateDoc(jobDocRef, {
         applicants: arrayUnion(applicant)
       });
-      
-      // Auto-save the job when applicant applies
+
       await this.saveJob(jobId);
-      
+
       console.log('Successfully applied to job:', jobId);
       return true;
     } catch (error) {

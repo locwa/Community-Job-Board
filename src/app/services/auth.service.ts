@@ -94,9 +94,15 @@ export class AuthService {
       
       await setDoc(doc(this.firestore, 'users', credential.user.uid), userProfile);
       this.userProfile.set(userProfile);
-      
+
       this.clearError();
-      this.router.navigate(['/']);
+
+      if (role === 'applicant') {
+        this.router.navigate(['/profile']);
+      } else {
+        this.router.navigate(['/']);
+      }
+
       return true;
     } catch (error: any) {
       this.authError.set(this.getErrorMessage(error.code));

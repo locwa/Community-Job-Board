@@ -11,6 +11,7 @@
       @if (authService.isLoggedIn()) {
         @if (authService.isApplicant()) {
           <a class="nav-link text-white" routerLink="/saved-jobs">Saved Jobs</a>
+          <a class="nav-link text-white" routerLink="/applied-jobs">Applied Jobs</a>
         }
         
         @if (authService.isEmployer()) {
@@ -20,6 +21,7 @@
         
         @if (authService.isAdmin()) {
           <a class="nav-link" routerLink="/admin">Jobs Management</a>
+          <a class="nav-link" routerLink="/user-management">User Management</a>
         }
 
         <div class="navbar-user-info ms-2">
