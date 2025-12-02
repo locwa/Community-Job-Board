@@ -286,7 +286,8 @@ export class JobsService {
       const applicant = {
         userId: user.uid,
         email: user.email,
-        appliedAt: Timestamp.now()
+        appliedAt: Timestamp.now(),
+        status: 'pending'
       };
 
       await updateDoc(jobDocRef, {
@@ -300,6 +301,44 @@ export class JobsService {
       return true;
     } catch (error) {
       console.error('Error applying to job:', error);
+      return false;
+    }
+  }
+
+  async updateApplicantStatus(
+    jobId: string,
+    applicantUserId: string,
+    status: 'accepted' | 'rejected'
+  ): Promise<boolean> {
+    try {
+      const jobDocRef = doc(this.firestore, 'jobs', jobId);
+      const snapshot = await getDoc(jobDocRef);
+
+      if (!snapshot.exists()) {
+        console.error('Job not found when updating applicant status:', jobId);
+        return false;
+      }
+
+      const data = snapshot.data();
+      const applicants = (data['applicants'] || []) as any[];
+
+      const updatedApplicants = applicants.map(applicant => {
+        if (applicant.userId === applicantUserId) {
+          return {
+            ...applicant,
+            status
+          };
+        }
+        return applicant;
+      });
+
+      await updateDoc(jobDocRef, {
+        applicants: updatedApplicants
+      });
+
+      return true;
+    } catch (error) {
+      console.error('Error updating applicant status:', error);
       return false;
     }
   }

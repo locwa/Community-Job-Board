@@ -3,6 +3,7 @@ export interface Applicant {
   email: string;
   appliedAt: Date;
   name?: string;
+  status?: 'pending' | 'accepted' | 'rejected';
 }
 
 export interface Job {

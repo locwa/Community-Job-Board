@@ -23,6 +23,10 @@
         }
 
         <div class="navbar-user-info ms-2">
+          <a class="nav-link text-white" routerLink="/profile">
+            <i class="fas fa-user-circle me-1"></i>
+            Profile
+          </a>
           <span class="badge bg-secondary">{{ authService.userProfile()?.role }}</span>
           <span class="text-white-50 small">{{ authService.currentUser()?.email }}</span>
           <button class="btn btn-outline-light btn-sm" (click)="authService.logout()">Logout</button>

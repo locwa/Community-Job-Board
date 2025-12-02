@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { JobsService } from '../services/jobs-service';
 import { AuthService } from '../services/auth.service';
-import { Job } from '../models/job.model';
+import { Job, Applicant } from '../models/job.model';
 
 @Component({
   selector: 'app-employer-jobs',
@@ -18,6 +18,7 @@ export class EmployerJobs implements OnInit {
   jobs: Job[] = [];
   loading = false;
   selectedJob: Job | null = null;
+  selectedApplicant: Applicant | null = null;
   editingJob: Job | null = null;
   isDeleting = false;
   isSaving = false;
@@ -57,6 +58,15 @@ export class EmployerJobs implements OnInit {
   viewJob(job: Job) {
     this.selectedJob = job;
     this.editingJob = null;
+    this.selectedApplicant = null;
+  }
+
+  openApplicantModal(applicant: Applicant) {
+    this.selectedApplicant = applicant;
+  }
+
+  closeApplicantModal() {
+    this.selectedApplicant = null;
   }
 
   startEdit(job: Job) {
@@ -139,6 +149,47 @@ export class EmployerJobs implements OnInit {
       alert('Failed to delete job');
     } finally {
       this.isDeleting = false;
+    }
+  }
+
+  async acceptApplicant(applicant: Applicant) {
+    if (!this.selectedJob?.id || !applicant.userId) return;
+    
+    const success = await this.jobService.updateApplicantStatus(
+      this.selectedJob.id,
+      applicant.userId,
+      'accepted'
+    );
+
+    if (success) {
+      await this.loadEmployerJobs();
+      // Refresh selectedJob reference after reload
+      this.selectedJob = this.jobs.find(j => j.id === this.selectedJob?.id) || null;
+      this.closeApplicantModal();
+    } else {
+      alert('Failed to update applicant status.');
+    }
+  }
+
+  async rejectApplicant(applicant: Applicant) {
+    if (!this.selectedJob?.id || !applicant.userId) return;
+
+    const confirmed = confirm('Are you sure you want to reject this applicant?');
+    if (!confirmed) return;
+
+    const success = await this.jobService.updateApplicantStatus(
+      this.selectedJob.id,
+      applicant.userId,
+      'rejected'
+    );
+
+    if (success) {
+      await this.loadEmployerJobs();
+      // Refresh selectedJob reference after reload
+      this.selectedJob = this.jobs.find(j => j.id === this.selectedJob?.id) || null;
+      this.closeApplicantModal();
+    } else {
+      alert('Failed to update applicant status.');
     }
   }
 
