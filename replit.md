@@ -11,6 +11,14 @@ A community job board application built with Angular 20 and Firebase. This app a
 - **Applicant**: Can browse jobs, save jobs for later, and apply to positions
 
 ## Recent Changes
+- **2025-12-03**: Replaced JavaScript window dialogs with custom Bootstrap modals
+  - Removed all window.alert() and window.confirm() calls across the application
+  - employer-jobs: Added reject confirmation modal and alert modal for status updates
+  - job-list: Added alert modal for validation errors and application failures
+  - admin-dashboard: Added dynamic confirmation modal for reject/delete actions
+  - Fixed bug where submitApplication could leave form disabled on early return
+  - All modals feature consistent Bootstrap styling with proper state management
+
 - **2025-12-03**: Enhanced applicant details modal in employer-jobs page
   - Updated applyJob method to store applicant's name from their profile in Firestore
   - Applicant list now displays name prominently (with email as secondary info)

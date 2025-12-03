@@ -28,6 +28,9 @@ export class JobList implements OnInit {
   showConfirmation = false;
   applicationResponses: { question: string; answer: string }[] = [];
 
+  showAlertModal = false;
+  alertMessage = '';
+
   applicationQuestions = [
     { question: 'Why are you interested in this position?', required: true },
     { question: 'What relevant experience do you have?', required: true },
@@ -124,6 +127,16 @@ export class JobList implements OnInit {
     this.applicationResponses = [];
   }
 
+  showAlert(message: string) {
+    this.alertMessage = message;
+    this.showAlertModal = true;
+  }
+
+  closeAlertModal() {
+    this.showAlertModal = false;
+    this.alertMessage = '';
+  }
+
   async submitApplication() {
     const requiredQuestions = this.applicationQuestions.filter(q => q.required);
     const allRequiredAnswered = requiredQuestions.every((q, index) => {
@@ -132,14 +145,17 @@ export class JobList implements OnInit {
     });
 
     if (!allRequiredAnswered) {
-      alert('Please answer all required questions.');
+      this.showAlert('Please answer all required questions.');
+      return;
+    }
+
+    const jobId = this.jobDetails?.id;
+    if (!jobId) {
+      this.showAlert('Unable to submit application. Please try again.');
       return;
     }
 
     this.isSubmitting = true;
-
-    const jobId = this.jobDetails?.id;
-    if (!jobId) return;
 
     const success = await this.jobService.applyJob(jobId, this.applicationResponses);
 
@@ -153,7 +169,7 @@ export class JobList implements OnInit {
         this.viewJob(jobId);
       }
     } else {
-      alert('Failed to apply. You may have already applied to this job.');
+      this.showAlert('Failed to apply. You may have already applied to this job.');
       this.closeApplicationModal();
     }
   }

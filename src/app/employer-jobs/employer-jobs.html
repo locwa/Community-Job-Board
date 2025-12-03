@@ -101,7 +101,7 @@
                         <button 
                           class="btn btn-sm btn-outline-danger"
                           title="Reject applicant"
-                          (click)="rejectApplicant(applicant)"
+                          (click)="openRejectConfirm(applicant)"
                           [disabled]="applicant.status === 'rejected'"
                         >
                           <i class="fas fa-times"></i>
@@ -224,7 +224,7 @@
         </button>
         <button 
           class="btn btn-danger"
-          (click)="rejectApplicant(selectedApplicant)"
+          (click)="openRejectConfirm(selectedApplicant)"
           [disabled]="selectedApplicant.status === 'rejected'"
         >
           <i class="fas fa-times me-1"></i> Reject
@@ -320,6 +320,44 @@
         <button class="btn btn-danger" (click)="confirmDelete()" [disabled]="isDeleting">
           {{ isDeleting ? 'Deleting...' : 'Delete' }}
         </button>
+      </div>
+    </div>
+  </div>
+}
+
+@if (showRejectConfirmModal) {
+  <div class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header d-flex justify-content-between align-items-center">
+        <h5 class="modal-title"><i class="fas fa-exclamation-triangle text-warning me-2"></i>Confirm Rejection</h5>
+        <button type="button" class="btn-close" (click)="closeRejectConfirm()"></button>
+      </div>
+      <div class="modal-body">
+        <p>Are you sure you want to reject this applicant?</p>
+        <p class="text-muted small">They will be removed from the applicants list.</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="closeRejectConfirm()">Cancel</button>
+        <button class="btn btn-danger" (click)="confirmRejectApplicant()">
+          <i class="fas fa-times me-1"></i> Reject Applicant
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+@if (showAlertModal) {
+  <div class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header d-flex justify-content-between align-items-center">
+        <h5 class="modal-title"><i class="fas fa-info-circle text-primary me-2"></i>Notice</h5>
+        <button type="button" class="btn-close" (click)="closeAlertModal()"></button>
+      </div>
+      <div class="modal-body">
+        <p>{{ alertMessage }}</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-primary" (click)="closeAlertModal()">OK</button>
       </div>
     </div>
   </div>

@@ -32,6 +32,11 @@ export class EmployerJobs implements OnInit {
   editSalaryMax: string = "";
   sortBy: string = "date-desc";
 
+  showAlertModal = false;
+  alertMessage = '';
+  showRejectConfirmModal = false;
+  applicantToReject: Applicant | null = null;
+
   salaryOptions = [
     { value: 10000, label: "₱10,000" },
     { value: 20000, label: "₱20,000" },
@@ -144,18 +149,28 @@ export class EmployerJobs implements OnInit {
     this.editSalaryMax = "";
   }
 
+  showAlert(message: string) {
+    this.alertMessage = message;
+    this.showAlertModal = true;
+  }
+
+  closeAlertModal() {
+    this.showAlertModal = false;
+    this.alertMessage = '';
+  }
+
   async saveEdit() {
     if (!this.editingJob || !this.editingJob.id) return;
     
     if (!this.editingJob.title || !this.editingJob.location || !this.editingJob.type || !this.editingJob.description || !this.editSalaryMin || !this.editSalaryMax) {
-      alert('Please fill in all fields');
+      this.showAlert('Please fill in all fields');
       return;
     }
 
     const minNum = parseInt(this.editSalaryMin);
     const maxNum = parseInt(this.editSalaryMax);
     if (minNum >= maxNum) {
-      alert('Minimum salary must be less than maximum salary');
+      this.showAlert('Minimum salary must be less than maximum salary');
       return;
     }
 
@@ -170,7 +185,7 @@ export class EmployerJobs implements OnInit {
       this.editSalaryMax = "";
     } catch (error) {
       console.error('Error updating job:', error);
-      alert('Failed to update job');
+      this.showAlert('Failed to update job');
     } finally {
       this.isSaving = false;
     }
@@ -200,7 +215,7 @@ export class EmployerJobs implements OnInit {
       this.jobToDelete = null;
     } catch (error) {
       console.error('Error deleting job:', error);
-      alert('Failed to delete job');
+      this.showAlert('Failed to delete job');
     } finally {
       this.isDeleting = false;
     }
@@ -221,19 +236,26 @@ export class EmployerJobs implements OnInit {
       this.selectedJob = this.jobs.find(j => j.id === this.selectedJob?.id) || null;
       this.closeApplicantModal();
     } else {
-      alert('Failed to update applicant status.');
+      this.showAlert('Failed to update applicant status.');
     }
   }
 
-  async rejectApplicant(applicant: Applicant) {
-    if (!this.selectedJob?.id || !applicant.userId) return;
+  openRejectConfirm(applicant: Applicant) {
+    this.applicantToReject = applicant;
+    this.showRejectConfirmModal = true;
+  }
 
-    const confirmed = confirm('Are you sure you want to reject this applicant? They will be removed from the applicants list.');
-    if (!confirmed) return;
+  closeRejectConfirm() {
+    this.showRejectConfirmModal = false;
+    this.applicantToReject = null;
+  }
+
+  async confirmRejectApplicant() {
+    if (!this.selectedJob?.id || !this.applicantToReject?.userId) return;
 
     const success = await this.jobService.removeApplicant(
       this.selectedJob.id,
-      applicant.userId
+      this.applicantToReject.userId
     );
 
     if (success) {
@@ -241,8 +263,10 @@ export class EmployerJobs implements OnInit {
       // Refresh selectedJob reference after reload
       this.selectedJob = this.jobs.find(j => j.id === this.selectedJob?.id) || null;
       this.closeApplicantModal();
+      this.closeRejectConfirm();
     } else {
-      alert('Failed to reject applicant.');
+      this.showAlert('Failed to reject applicant.');
+      this.closeRejectConfirm();
     }
   }
 

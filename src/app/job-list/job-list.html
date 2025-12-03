@@ -157,3 +157,20 @@
     </div>
   </div>
 }
+
+@if (showAlertModal) {
+  <div class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header d-flex justify-content-between align-items-center">
+        <h5 class="modal-title"><i class="fas fa-info-circle text-primary me-2"></i>Notice</h5>
+        <button type="button" class="btn-close" (click)="closeAlertModal()"></button>
+      </div>
+      <div class="modal-body">
+        <p>{{ alertMessage }}</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-primary" (click)="closeAlertModal()">OK</button>
+      </div>
+    </div>
+  </div>
+}
