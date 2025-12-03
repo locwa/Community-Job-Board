@@ -11,6 +11,14 @@ A community job board application built with Angular 20 and Firebase. This app a
 - **Applicant**: Can browse jobs, save jobs for later, and apply to positions
 
 ## Recent Changes
+- **2025-12-03**: Enhanced applicant details modal in employer-jobs page
+  - Updated applyJob method to store applicant's name from their profile in Firestore
+  - Applicant list now displays name prominently (with email as secondary info)
+  - Modal redesigned with professional header showing applicant name, email, and status
+  - Added dedicated "Application Questions & Answers" section with improved styling
+  - Profile Information section organized with icons and clear labels
+  - Added fallback logic to display email when name/profile is unavailable
+
 - **2025-11-30**: Added confirmation modal for job creation
   - Employers must confirm job details before posting
   - Modal displays all job information for review (title, company, location, type, salary, description)
