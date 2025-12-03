@@ -323,9 +323,15 @@ export class JobsService {
         return false;
       }
 
+      const userProfile = await this.authService.getUserProfile(user.uid);
+      const applicantName = userProfile 
+        ? `${userProfile.firstName || ''} ${userProfile.lastName || ''}`.trim() 
+        : '';
+
       const applicant = {
         userId: user.uid,
         email: user.email,
+        name: applicantName || user.email,
         appliedAt: Timestamp.now(),
         status: 'pending',
         responses: responses || []
