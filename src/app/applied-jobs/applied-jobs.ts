@@ -31,7 +31,9 @@ export class AppliedJobs implements OnInit {
       const allJobs = await this.jobsService.getAllJobs();
       const applied = allJobs
         .filter(job =>
-          job.applicants?.some(applicant => applicant.userId === userId)
+          job.applicants?.some(applicant => 
+            applicant.userId === userId && applicant.status !== 'rejected'
+          )
         )
         .map(job => {
           const applicant = job.applicants?.find(a => a.userId === userId);
