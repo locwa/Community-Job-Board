@@ -388,4 +388,33 @@ export class JobsService {
       return false;
     }
   }
+
+  async removeApplicant(jobId: string, applicantUserId: string): Promise<boolean> {
+    try {
+      const jobDocRef = doc(this.firestore, 'jobs', jobId);
+      const snapshot = await getDoc(jobDocRef);
+
+      if (!snapshot.exists()) {
+        console.error('Job not found when removing applicant:', jobId);
+        return false;
+      }
+
+      const data = snapshot.data();
+      const applicants = (data['applicants'] || []) as any[];
+
+      const updatedApplicants = applicants.filter(
+        applicant => applicant.userId !== applicantUserId
+      );
+
+      await updateDoc(jobDocRef, {
+        applicants: updatedApplicants
+      });
+
+      console.log('Successfully removed applicant from job:', jobId);
+      return true;
+    } catch (error) {
+      console.error('Error removing applicant:', error);
+      return false;
+    }
+  }
 }

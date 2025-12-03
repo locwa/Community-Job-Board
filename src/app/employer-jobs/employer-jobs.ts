@@ -228,13 +228,12 @@ export class EmployerJobs implements OnInit {
   async rejectApplicant(applicant: Applicant) {
     if (!this.selectedJob?.id || !applicant.userId) return;
 
-    const confirmed = confirm('Are you sure you want to reject this applicant?');
+    const confirmed = confirm('Are you sure you want to reject this applicant? They will be removed from the applicants list.');
     if (!confirmed) return;
 
-    const success = await this.jobService.updateApplicantStatus(
+    const success = await this.jobService.removeApplicant(
       this.selectedJob.id,
-      applicant.userId,
-      'rejected'
+      applicant.userId
     );
 
     if (success) {
@@ -243,7 +242,7 @@ export class EmployerJobs implements OnInit {
       this.selectedJob = this.jobs.find(j => j.id === this.selectedJob?.id) || null;
       this.closeApplicantModal();
     } else {
-      alert('Failed to update applicant status.');
+      alert('Failed to reject applicant.');
     }
   }
 
